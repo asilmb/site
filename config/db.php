@@ -7,12 +7,12 @@ return [
     'password' => '',
     'schemaMap' => [
         'pgsql' => [
-            'class' => 'yii\db\pgsql\Schema::class',
+            'class' => 'yii\db\pgsql\Schema',
             'defaultSchema' => 'site' //specify your schema here
         ]
     ],
     'on afterOpen' => function ($event) {
-        $event->sender->createCommand("SET search_path TO my_schema")->execute();
+        $event->sender->createCommand("SET search_path TO site")->execute();
     },
     'charset' => 'utf8',
 
