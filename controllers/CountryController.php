@@ -14,7 +14,7 @@ class CountryController extends Controller
 
         $pagination = new Pagination([
             'defaultPageSize' => 5,
-            'totalCount' => $query,
+            'totalCount' => $query->count(),
         ]);
 
         $countries = $query->orderBy('name')

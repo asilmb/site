@@ -11,7 +11,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\User;
-
+use app\controllers\AnkiController;
 class SiteController extends Controller
 {
     /**
@@ -131,16 +131,27 @@ class SiteController extends Controller
        return $this->render('hello');
        //return 'Hello, world!';
     }
-    public function actionSignup(){
+    public function actionSignup($hash){
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
+        }
+        if (empty($hash)) {
+            throw new \DomainException('Empty confirm token.');
         }
         $model = new SignupForm();
         if($model->load(\Yii::$app->request->post()) && $model->validate()){
 
             $user = new User();
+            $mail = Mail::findOne(['hash' => $hash]);
+            if (!$mail) {
+                throw new \DomainException('User is not found.');
+            }
+//            $mail->hash
             $user->username = $model->username;
-            $user->password = \Yii::$app->security->generatePasswordHash($model->password);
+            if ($model->password === $model->passwordConfirmation){
+                $user->password = \Yii::$app->security->generatePasswordHash($model->password);
+            }
+            $user->mail = $mail->mail;
             if($user->save()){
                 return $this->goHome();
             }
