@@ -10,7 +10,7 @@ use app\models\User;
 use yii\web\IdentityInterface;
 use yii\controllers\Mail;
 
-class AnkiController extends Controller
+class AnkiController extends Controller // auth contoller
 {
     public function actionRegistration(){
         if (!Yii::$app->user->isGuest) {

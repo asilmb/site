@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\SignupForm;
+use app\models\SignUpForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -21,18 +21,18 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'only' => ['logout'],
                 'rules' => [
                     [
                         'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['@'], //?, @ *
                     ],
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -131,18 +131,30 @@ class SiteController extends Controller
        return $this->render('hello');
        //return 'Hello, world!';
     }
-    public function actionSignup($hash){
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-        if (empty($hash)) {
-            throw new \DomainException('Empty confirm token.');
-        }
-        $model = new SignupForm();
-        if($model->load(\Yii::$app->request->post()) && $model->validate()){
 
+    /**
+     * sdfsdfsdfssdsdffsddsf
+     *
+     * @param $hash string
+     * @return string
+     */
+    public function actionSignUp($hash){
+
+        $model = new SignUpForm(); // не модель а форма  $signUpForm
+        $model->hash = $hash;
+        $model->validate();
+        return $this->render('signup', compact('model'));
+    }
+
+    /**
+     * @return string|Response
+     * @throws \yii\base\Exception
+     */
+    public function actionRegistration(){
+        $model = new SignUpForm(); // не модель а форма  $signUpForm
+        if($model->load(\Yii::$app->request->post()) && $model->validate()){
             $user = new User();
-            $mail = Mail::findOne(['hash' => $hash]);
+            $mail = Mail::findOne(['hash' => $model->hash]);
             if (!$mail) {
                 throw new \DomainException('User is not found.');
             }
@@ -160,6 +172,4 @@ class SiteController extends Controller
 
         return $this->render('signup', compact('model'));
     }
-
-
 }
