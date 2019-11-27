@@ -8,7 +8,7 @@ use app\models\SignupFormMail;
 use Yii;
 use app\models\User;
 use yii\web\IdentityInterface;
-use yii\controllers\Mail;
+//use yii\controllers\Mail;
 
 class AnkiController extends Controller
 {
@@ -16,7 +16,7 @@ class AnkiController extends Controller
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-        $model = new SignupFormMail();
+        $model = new SignUpFormMail();
         if($model->load(\Yii::$app->request->post()) && $model->validate()){
 
             $mail = new Mail();
@@ -32,7 +32,7 @@ class AnkiController extends Controller
         return $this->render('registration', compact('model'));
     }
     public function sentEmail(Mail $mail){
-        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['site/signup', 'hash' => $mail->hash]);
+        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['site/sign-up', 'hash' => $mail->hash]);
         $msg_html  = "<html><body style='font-family:Arial,sans-serif;'>";
         $msg_html .= "<h2 style='font-weight:bold;border-bottom:1px dotted #ccc;'>Здравствуйте!</a></h2>\r\n";
         $msg_html .= "<p><strong>Подтвердите свой e-mail.</strong></p>\r\n";
