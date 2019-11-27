@@ -7,7 +7,7 @@ use yii\base\Model;
 class SignupFormMail extends Model
 {
     public $email;
-
+    public $pidr;
 
     public function rules() {
         return [
@@ -18,6 +18,7 @@ class SignupFormMail extends Model
     public function attributeLabels() {
         return [
             'email' => 'Enter Email',
+
         ];
     }
 }

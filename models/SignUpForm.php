@@ -19,7 +19,7 @@ class SignUpForm extends Model
     public function rules() {
         return [
             [['hash'], 'required', 'on' => self::HASH],
-            proverka string
+
             [['username', 'password','passwordConfirmation'], 'required', 'message' => 'Заполните поле', 'on' => self::REGISTRATION],
             ['username', 'unique', 'targetClass' => User::className(),  'message' => 'Этот логин уже занят', 'on' => self::REGISTRATION],
             ['passwordConfirmation','compare', 'compareAttribute' => 'password','message' => 'Пароли не совпадают', 'on' => self::REGISTRATION],
