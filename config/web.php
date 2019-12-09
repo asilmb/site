@@ -6,9 +6,8 @@ $db = require __DIR__ . '/db.php';
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-//    'layout' =>'basic',
+    'defaultRoute' => 'anki/index',
     'bootstrap' => ['log'],
-//    'homeUrl'=>'/',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -17,7 +16,7 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'MNUTa8ShVFuH0ar8Uq67SnYIBGXCF99-',
-//            'baseUrl'=>'/'
+            'baseUrl'=>''
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -60,6 +59,8 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'site' => 'site/index'
+
             ],
         ],
 

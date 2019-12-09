@@ -135,35 +135,7 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-        if (empty($hash)) {
-            throw new \DomainException('Empty confirm token.');
-        }
-        $model = new SignUpForm();
-        if($model->load(\Yii::$app->request->post()) && $model->validate()){
 
-            $user = new User();
-            $mail = Mail::findOne(['hash' => $hash]);
-            if (!$mail) {
-                throw new \DomainException('User is not found.');
-            }
-
-            $user->username = $model->username;
-            if ($model->password === $model->passwordConfirmation){
-                $user->password = \Yii::$app->security->generatePasswordHash($model->password);
-            }
-//            $checkMail = User::findOne(['mail'=>$mail->mail]);
-//            if (!$checkMail){
-//                throw new \DomainException('User already registered');
-//            }
-            $user->mail = $mail->mail;
-            if($user->save()){
-                $mail->delete();
-                return $this->goHome();
-            }
-
-        }
-
-        return $this->render('signUp', compact('model'));
     }
 
 

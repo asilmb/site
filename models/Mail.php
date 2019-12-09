@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\controllers;
+namespace app\models;
 
 
 use yii\db\ActiveRecord;
@@ -16,5 +16,9 @@ class Mail extends ActiveRecord
     public static function primaryKey()
     {
         return ['mail'];
+    }
+    public static function findByMail($mail)
+    {
+        return static::findOne($mail);
     }
 }

@@ -2,22 +2,28 @@
 
 
 namespace app\models;
+
 use yii\base\Model;
+
 
 class SignUpFormMail extends Model
 {
-    public $email;
+    public $mail;
 
-
-    public function rules() {
+    public function rules()
+    {
         return [
-            [['email'], 'required','message' => 'Заполните поле'],
-            ['email', 'email','message'=>"The email isn't correct"],
+            [['mail'], 'required', 'message' => 'Fill in the field'],
+            ['mail', 'unique', 'targetClass' => User::className(), 'message' => 'A user with this mail already exists.'],
+            ['mail', 'unique', 'targetClass' => Mail::className(), 'message' => 'Сonfirm your email. Check your email.'],
+            ['mail', 'email', 'message' => "The email isn't correct"],
         ];
     }
-    public function attributeLabels() {
+
+    public function attributeLabels()
+    {
         return [
-            'email' => 'Enter Email',
+            'mail' => 'Enter Email',
         ];
     }
 }
