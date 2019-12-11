@@ -12,7 +12,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return static::findOne($id);
+        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
     }
 
     /**
@@ -81,8 +81,5 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return \Yii::$app->security->validatePassword($password, $this->password);
     }
-    public static function findByMail($mail)
-    {
-        return static::findOne($mail);
-    }
+
 }

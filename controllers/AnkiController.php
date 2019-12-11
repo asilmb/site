@@ -8,7 +8,7 @@ use app\models\SignupFormMail;
 use Yii;
 use app\models\User;
 use app\models\Mail;
-use yii\web\IdentityInterface;
+use \yii\web\HttpException;
 
 
 class AnkiController extends Controller
@@ -26,14 +26,20 @@ class AnkiController extends Controller
     public function actionRegistration()
     {
         $model = new SignUpFormMail();
+
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
             $mail = new Mail();
             $mail->mail = $model->mail;
             $mail->hash = hash("md5", $model->mail);
-            $mail->save();
-            $this->sentEmail($mail);
-            Yii::$app->session->setFlash('success', 'Сonfirm your email. Check your email.');
-            return $this->goHome();
+            try {
+                if ($mail->save()) {
+                    $this->sentEmail($mail);
+                    Yii::$app->session->setFlash('success', 'Сonfirm your email. Check your email.');
+                    return $this->goHome();
+                }
+            } catch (\Exception $e) {
+                throw new HttpException(500, 'Internal Server Error');
+            }
         }
         return $this->render('registration', ['model' => $model]);
     }
@@ -41,42 +47,39 @@ class AnkiController extends Controller
 
     public function sentEmail(Mail $mail)
     {
-        Yii::$app->mailer->compose(['html' => 'user-signup-comfirm-html'], ['mail' => $mail])
+        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['anki/sign-up', 'hash' => $mail->hash]);
+        Yii::$app->mailer->compose(['html' => 'user-signup-comfirm-html'], ['confirmLink' => $confirmLink])
             ->setTo($mail->mail)
             ->setFrom('anki@gmail.com')
             ->setSubject('Confirmation of registration')
             ->send();
-
+        return true;
     }
 
-    public function actionSignUp($hash)
+    public function actionSignUp()
     {
-        if (empty($hash)) {
-            throw new \DomainException('Empty confirm token.');
-        }
+
+
         $model = new SignUpForm();
+
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
 
             $user = new User();
-            $mail = Mail::findOne(['hash' => $hash]);
+            $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
             if (!$mail) {
-                throw new \DomainException('User is not found.');
+                throw new HttpException(500, 'Internal !!Server Error');
             }
-
             $user->username = $model->username;
-
             $user->password = \Yii::$app->security->generatePasswordHash($model->password);
-
-
             $user->mail = $mail->mail;
             if ($user->save()) {
                 $mail->delete();
                 Yii::$app->session->setFlash('success', 'Registration successful');
                 return $this->goHome();
-            }
+            } else
+                throw new HttpException(500, 'Internal Server Error');
 
         }
-
         return $this->render('signUp', ['model' => $model]);
     }
 

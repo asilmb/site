@@ -1,9 +1,7 @@
 <?php
+
 use yii\helpers\Html;
-use app\controllers\AnkiController;
 
-
-$confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['anki/sign-up', 'hash' => $mail->hash]);
 ?>
 <div class="password-reset">
     <p>Hello friend,</p>
