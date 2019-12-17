@@ -38,7 +38,7 @@ class AnkiController extends Controller
                     return $this->goHome();
                 }
             } catch (\Exception $e) {
-                throw new HttpException(500, 'Internal Server Error');
+                throw new HttpException(500, $e->getMessage());
             }
         }
         return $this->render('registration', ['model' => $model]);
@@ -47,7 +47,7 @@ class AnkiController extends Controller
 
     public function sentEmail(Mail $mail)
     {
-        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['anki/sign-up', 'hash' => $mail->hash]);
+        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl([YII::$app->params['signUp'], 'hash' => $mail->hash]);
         Yii::$app->mailer->compose(['html' => 'user-signup-comfirm-html'], ['confirmLink' => $confirmLink])
             ->setTo($mail->mail)
             ->setFrom('anki@gmail.com')
@@ -58,27 +58,26 @@ class AnkiController extends Controller
 
     public function actionSignUp()
     {
-
-
         $model = new SignUpForm();
-
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
 
             $user = new User();
             $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
             if (!$mail) {
-                throw new HttpException(500, 'Internal !!Server Error');
+                throw new HttpException(500, 'Internal Server Error');
             }
             $user->username = $model->username;
             $user->password = \Yii::$app->security->generatePasswordHash($model->password);
             $user->mail = $mail->mail;
-            if ($user->save()) {
-                $mail->delete();
-                Yii::$app->session->setFlash('success', 'Registration successful');
-                return $this->goHome();
-            } else
-                throw new HttpException(500, 'Internal Server Error');
-
+            try {
+                if ($user->save()) {
+                    $mail->delete();
+                    Yii::$app->session->setFlash('success', 'Registration successful');
+                    return $this->goHome();
+                }
+            } catch (\Exception $e) {
+                throw new HttpException(500, $e->getMessage());
+            }
         }
         return $this->render('signUp', ['model' => $model]);
     }
