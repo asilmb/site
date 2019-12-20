@@ -41,10 +41,10 @@ AppAsset::register($this);
             ['label' => 'Sign Up', 'url' => ['/anki/registration']],
             ['label' => 'Home', 'url' => ['/anki/index']],
             Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
+                ['label' => 'Login', 'url' => ['/anki/login']]
             ) : (
                 '<li>'
-                . Html::beginForm(['/site/logout'], 'post')
+                . Html::beginForm(['/anki/logout'], 'post')
                 . Html::submitButton(
                     'Logout (' . Yii::$app->user->identity->username . ')',
                     ['class' => 'btn btn-link logout']

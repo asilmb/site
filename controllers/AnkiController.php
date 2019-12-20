@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\LoginForm;
 use app\models\SignUpForm;
 use yii\web\Controller;
 use app\models\SignupFormMail;
@@ -9,6 +10,7 @@ use Yii;
 use app\models\User;
 use app\models\Mail;
 use \yii\web\HttpException;
+use yii\web\Response;
 
 
 class AnkiController extends Controller
@@ -80,6 +82,36 @@ class AnkiController extends Controller
             }
         }
         return $this->render('signUp', ['model' => $model]);
+    }
+
+
+    public function actionLogin()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new LoginForm();
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+
+//            return $this->goBack();
+        }
+
+        return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Logout action.
+     *
+     * @return Response
+     */
+    public function actionLogout()
+    {
+        Yii::$app->user->logout();
+
+        return $this->goHome();
     }
 
 }
