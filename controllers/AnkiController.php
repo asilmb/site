@@ -2,50 +2,84 @@
 
 namespace app\controllers;
 
-use yii\db\ActiveRecord;
+use app\models\SignUpForm;
 use yii\web\Controller;
 use app\models\SignupFormMail;
 use Yii;
 use app\models\User;
-use yii\web\IdentityInterface;
-use yii\controllers\Mail;
+use app\models\Mail;
+use \yii\web\HttpException;
+
 
 class AnkiController extends Controller
 {
-    public function actionRegistration(){
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-        $model = new SignupFormMail();
-        if($model->load(\Yii::$app->request->post()) && $model->validate()){
-
-            $mail = new Mail();
-            $mail->mail = $model->email;
-            $mail->hash = hash("md5",$model->email);
-            if($mail->save()){
-                $this->sentEmail($mail);
-                return $this->goHome();
-            }
-
-        }
-
-        return $this->render('registration', compact('model'));
+    /**
+     * Displays homepage.
+     *
+     * @return string
+     */
+    public function actionIndex()
+    {
+        return $this->render('index');
     }
-    public function sentEmail(Mail $mail){
-        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['site/signup', 'hash' => $mail->hash]);
-        $msg_html  = "<html><body style='font-family:Arial,sans-serif;'>";
-        $msg_html .= "<h2 style='font-weight:bold;border-bottom:1px dotted #ccc;'>Здравствуйте!</a></h2>\r\n";
-        $msg_html .= "<p><strong>Подтвердите свой e-mail.</strong></p>\r\n";
-        $msg_html .= "<p><strong>Для этого перейдите по ссылке </strong><a href='". $confirmLink."'>$confirmLink</a></p>\r\n";
-        $msg_html .= "</body></html>";
 
-        Yii::$app->mailer->compose()
+    public function actionRegistration()
+    {
+        $model = new SignUpFormMail();
+
+        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+            $mail = new Mail();
+            $mail->mail = $model->mail;
+            $mail->hash = hash("md5", $model->mail);
+            try {
+                if ($mail->save()) {
+                    $this->sentEmail($mail);
+                    Yii::$app->session->setFlash('success', 'Сonfirm your email. Check your email.');
+                    return $this->goHome();
+                }
+            } catch (\Exception $e) {
+                throw new HttpException(500, $e->getMessage());
+            }
+        }
+        return $this->render('registration', ['model' => $model]);
+    }
+
+
+    public function sentEmail(Mail $mail)
+    {
+        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl([YII::$app->params['signUp'], 'hash' => $mail->hash]);
+        Yii::$app->mailer->compose(['html' => 'user-signup-comfirm-html'], ['confirmLink' => $confirmLink])
             ->setTo($mail->mail)
             ->setFrom('anki@gmail.com')
             ->setSubject('Confirmation of registration')
-            ->setHtmlbody("Follow the link below to confirm your email: $msg_html")
             ->send();
+        return true;
+    }
 
+    public function actionSignUp()
+    {
+        $model = new SignUpForm();
+        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+
+            $user = new User();
+            $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
+            if (!$mail) {
+                throw new HttpException(500, 'Internal Server Error');
+            }
+            $user->username = $model->username;
+            $user->password = \Yii::$app->security->generatePasswordHash($model->password);
+            $user->mail = $mail->mail;
+            try {
+                if ($user->save()) {
+                    $mail->delete();
+                    Yii::$app->session->setFlash('success', 'Registration successful');
+                    return $this->goHome();
+                }
+            } catch (\Exception $e) {
+                throw new HttpException(500, $e->getMessage());
+            }
+        }
+        return $this->render('signUp', ['model' => $model]);
     }
 
 }

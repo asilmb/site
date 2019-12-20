@@ -2,7 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\SignupForm;
+use app\models\SignUpForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -131,34 +131,11 @@ class SiteController extends Controller
        return $this->render('hello');
        //return 'Hello, world!';
     }
-    public function actionSignup($hash){
+    public function actionSignUp($hash){
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-        if (empty($hash)) {
-            throw new \DomainException('Empty confirm token.');
-        }
-        $model = new SignupForm();
-        if($model->load(\Yii::$app->request->post()) && $model->validate()){
 
-            $user = new User();
-            $mail = Mail::findOne(['hash' => $hash]);
-            if (!$mail) {
-                throw new \DomainException('User is not found.');
-            }
-//            $mail->hash
-            $user->username = $model->username;
-            if ($model->password === $model->passwordConfirmation){
-                $user->password = \Yii::$app->security->generatePasswordHash($model->password);
-            }
-            $user->mail = $mail->mail;
-            if($user->save()){
-                return $this->goHome();
-            }
-
-        }
-
-        return $this->render('signup', compact('model'));
     }
 
 

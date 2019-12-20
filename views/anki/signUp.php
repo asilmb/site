@@ -1,17 +1,18 @@
-
 <?php
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
+
 ?>
 
 <?php $form = ActiveForm::begin() ?>
+
 <?= $form->field($model, 'username') ?>
 <?= $form->field($model, 'password')->passwordInput() ?>
-<?= $form->field($model, 'passwordConfirmation')->passwordInput() ?>
-<div class="form-group">
-    <div>
-        <?= Html::submitButton('Регистрация', ['class' => 'btn btn-success']) ?>
+<?= $form->field($model, 'password_repeat')->passwordInput() ?>
+    <div class="form-group">
+        <div>
+            <?= Html::submitButton('Sign Up', ['class' => 'btn btn-success']) ?>
+        </div>
     </div>
-</div>
 <?php ActiveForm::end() ?>

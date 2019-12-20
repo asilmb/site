@@ -7,37 +7,12 @@ use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
 {
-//    public $id;
-//    public $username;
-//    public $password;
-//    public $authKey;
-//    public $accessToken;
-
-//    private static $users = [
-//        '100' => [
-//            'id' => '100',
-//            'username' => 'admin',
-//            'password' => 'admin',
-//            'authKey' => 'test100key',
-//            'accessToken' => '100-token',
-//        ],
-//        '101' => [
-//            'id' => '101',
-//            'username' => 'demo',
-//            'password' => 'demo',
-//            'authKey' => 'test101key',
-//            'accessToken' => '101-token',
-//        ],
-//    ];
-
-
     /**
      * {@inheritdoc}
      */
     public static function findIdentity($id)
     {
-        return static::findOne($id);
-//        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
     }
 
     /**
@@ -105,6 +80,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function validatePassword($password)
     {
         return \Yii::$app->security->validatePassword($password, $this->password);
-//        return $this->password === $password;
     }
+
 }
