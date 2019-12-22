@@ -61,13 +61,13 @@ class AnkiController extends Controller
     public function actionSignUp()
     {
         $model = new SignUpForm();
+        $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
+        if (!$mail) {
+            throw new HttpException(500, 'Internal Server Error');
+        }
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
 
             $user = new User();
-            $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
-            if (!$mail) {
-                throw new HttpException(500, 'Internal Server Error');
-            }
             $user->username = $model->username;
             $user->password = \Yii::$app->security->generatePasswordHash($model->password);
             $user->mail = $mail->mail;
