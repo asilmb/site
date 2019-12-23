@@ -8,7 +8,7 @@ use yii\helpers\Html;
 
     <p>Follow the link below to confirm your email:</p>
 
-    <p><?= Html::a(Html::encode($confirmLink), $confirmLink) ?></p>
+    <p><?= Html::a('Click here', $confirmLink) ?></p>
 </div>
 
 

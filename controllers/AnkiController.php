@@ -75,6 +75,7 @@ class AnkiController extends Controller
                 if ($user->save()) {
                     $mail->delete();
                     Yii::$app->session->setFlash('success', 'Registration successful');
+                    Yii::$app->user->switchIdentity($user);
                     return $this->goHome();
                 }
             } catch (\Exception $e) {
