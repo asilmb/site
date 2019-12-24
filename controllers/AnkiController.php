@@ -11,10 +11,41 @@ use app\models\User;
 use app\models\Mail;
 use \yii\web\HttpException;
 use yii\web\Response;
+use yii\filters\AccessControl;
 
 
 class AnkiController extends Controller
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['login', 'logout', 'signUp', 'registration'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['login', 'signUp', 'registration'],
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['logout'],
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => false,
+                        'actions' => ['registration'],
+                        'roles' => ['@'],
+                    ]
+                ],
+            ],
+        ];
+    }
+
     /**
      * Displays homepage.
      *
@@ -88,14 +119,10 @@ class AnkiController extends Controller
 
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
 
-//            return $this->goBack();
+            return $this->goHome();
         }
 
         return $this->render('login', [

@@ -7,12 +7,14 @@ use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
 {
+    public $authKey;
+
     /**
      * {@inheritdoc}
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return static::findOne($id);
     }
 
     /**
@@ -67,7 +69,6 @@ class User extends ActiveRecord implements IdentityInterface
     public function validatePassword($password)
     {
         return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
-        return \Yii::$app->security->validatePassword($password, $this->password);
     }
 
 }

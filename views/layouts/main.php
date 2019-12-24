@@ -1,6 +1,7 @@
 <?php
 
 /* @var $this \yii\web\View */
+
 /* @var $content string */
 
 use app\widgets\Alert;
@@ -38,10 +39,12 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Sign Up', 'url' => ['/anki/registration']],
+            Yii::$app->user->isGuest ? (
+            ['label' => 'Sign Up', 'url' => ['/anki/registration']]
+            ) : (''),
             ['label' => 'Home', 'url' => ['/anki/index']],
             Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/anki/login']]
+            ['label' => 'Login', 'url' => ['/anki/login']]
             ) : (
                 '<li>'
                 . Html::beginForm(['/anki/logout'], 'post')
