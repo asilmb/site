@@ -13,8 +13,8 @@ class m191125_122403_create_mail_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%mail}}', [
-           'mail' => $this->char(255)->notNull()->unique(),
-            'hash' => $this->char(255)->notNull()->unique()
+           'mail' => $this->string(255)->notNull()->unique(),
+            'hash' => $this->string(255)->notNull()->unique()
         ]);
     }
 
