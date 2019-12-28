@@ -27,7 +27,7 @@ $config = [
             'enableSession' => true,
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => 'anki/error',
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
