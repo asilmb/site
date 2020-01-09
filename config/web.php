@@ -25,6 +25,7 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
             'enableSession' => true,
+            'loginUrl'=>array('anki/login')
         ],
         'errorHandler' => [
             'errorAction' => 'anki/error',

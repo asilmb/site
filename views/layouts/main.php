@@ -41,7 +41,8 @@ AppAsset::register($this);
         'items' => [
             Yii::$app->user->isGuest ? (
             ['label' => 'Sign Up', 'url' => ['/anki/registration']]
-            ) : (''),
+            ) :
+                (['label' => 'Decks', 'url' => ['/deck/index']]),
             ['label' => 'Home', 'url' => ['/anki/index']],
             Yii::$app->user->isGuest ? (
             ['label' => 'Login', 'url' => ['/anki/login']]
