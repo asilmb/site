@@ -38,8 +38,8 @@ class DeckController extends Controller
     public function actionIndex()
     {
 
-        $model = Deck::findAll(['id_user' => Yii::$app->user->id]);
-        $decksNumber = Deck::find()->asArray()->where(['id_user' => Yii::$app->user->id])->count();
+        $model = Deck::findAll(['user_id' => Yii::$app->user->id]);
+        $decksNumber = count($model);
         return $this->render('index', ['model' => $model, 'decksNumber' => $decksNumber]);
     }
 
@@ -47,7 +47,7 @@ class DeckController extends Controller
     {
         $model = new Deck();
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-            $model->id_user = Yii::$app->user->id;
+            $model->setUserId(Yii::$app->user->id);
             try {
                 if ($model->save()) {
                     Yii::$app->session->setFlash('success', 'Deck successfully added');
@@ -62,39 +62,41 @@ class DeckController extends Controller
 
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        try {
+            return $this->render('view', [
+                'model' => Deck::findModel($id),
+            ]);
+        } catch (NotFoundHttpException $e) {
+            throw new NotFoundHttpException();
+        }
     }
 
-    public function actionRename($id)
+    public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        try {
+            $model = Deck::findModel($id);
+        } catch (NotFoundHttpException $e) {
+            throw new NotFoundHttpException();
+        }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
-        return $this->render('rename', ['model' => $model,]);
+        return $this->render('update', ['model' => $model,]);
     }
 
     public function actionDelete($id)
     {
-        if ($this->findModel($id)->delete()) {
-            return $this->redirect(['index']);
+        try {
+            if (Deck::findModel($id)->delete()) {
+                return $this->redirect(['index']);
+            }
+        } catch (NotFoundHttpException $e) {
+            throw new NotFoundHttpException('Failed to remove deck.');
         }
-
-        throw new NotFoundHttpException('Failed to remove deck.');
     }
 
-    protected function findModel($id)
-    {
-        if (($model = Deck::findOne($id)) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
-    }
 
     public function actions()
     {

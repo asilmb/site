@@ -17,19 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= 'The number of your decks: ' . $decksNumber ?>
     </h4>
     <?php
-
-    foreach ($model as $deck) {
-        echo '<pre>' .
-            Html::a(print_r($deck['name'], true), ['view', 'id' => $deck['id']], ['class' => 'btn btn-outline-secondary']) .
-            Html::a('Rename', ['rename', 'id' => $deck['id']], ['class' => 'btn btn-primary']) .
-            Html::a('Delete', ['delete', 'id' => $deck['id']], [
-                'class' => 'btn btn-danger',
-                'data' => [
-                    'confirm' => 'Are you sure you want to delete this item?',
-                    'method' => 'post',
-                ],
-            ])
-            . '</pre>';
-    }
+    echo $this->render('_deckList', [
+        'model' => $model,
+    ])
     ?>
 </div>
