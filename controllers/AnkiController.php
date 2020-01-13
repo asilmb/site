@@ -94,7 +94,7 @@ class AnkiController extends Controller
         $model = new SignUpForm();
         $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
         if (!$mail) {
-            throw new HttpException(500, 'Internal Server Error');
+            throw new HttpException(422, 'Mail didn\'t send');
         }
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
 
@@ -140,6 +140,18 @@ class AnkiController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
     }
 
 }

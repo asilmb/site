@@ -25,9 +25,10 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
             'enableSession' => true,
+            'loginUrl'=>array('anki/login')
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => 'anki/error',
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
