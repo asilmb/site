@@ -4,8 +4,10 @@
 namespace app\controllers;
 
 
+use app\models\Card;
 use Yii;
 use app\models\Deck;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\HttpException;
@@ -62,9 +64,16 @@ class DeckController extends Controller
 
     public function actionView($id)
     {
+        $dataProvider = new ActiveDataProvider([
+            'query' => Card::find()->where(['deck_id' => $id]),
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+        ]);
         try {
             return $this->render('view', [
                 'model' => Deck::findModel($id),
+                'dataProvider' => $dataProvider,
             ]);
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();

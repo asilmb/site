@@ -28,6 +28,11 @@ class Deck extends ActiveRecord
         return $this->user_id;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
     public function rules()
     {
         return [

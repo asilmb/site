@@ -26,4 +26,9 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     </p>
 
+
+    <?= $this->render('/card/_cardList', [
+        'dataProvider' => $dataProvider,
+    ]) ?>
+
 </div>
