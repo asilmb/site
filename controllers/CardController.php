@@ -6,7 +6,6 @@ namespace app\controllers;
 use Yii;
 use app\models\Card;
 use app\models\Deck;
-use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -82,10 +81,16 @@ class CardController extends Controller
     public function actionDelete($id)
     {
         try {
+            $model = Card::findModel($id);
+            $deckId = $model->deck_id;
+        } catch (NotFoundHttpException $e) {
+            throw new NotFoundHttpException();
+        }
+        try {
 
-            if (Card::findModel($id)->delete()) {
+            if ($model->delete()) {
                 Yii::$app->session->setFlash('success', 'Card successfully deleted');
-                return $this->redirect(['deck/view', 'id' => $model->deck_id]);
+                return $this->redirect(['deck/view', 'id' => $deckId]);
             }
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException('Failed to remove deck.');
