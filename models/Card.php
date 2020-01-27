@@ -53,4 +53,8 @@ class Card extends ActiveRecord
         }
         throw new NotFoundHttpException();
     }
+    public function showAnswer($id){
+        $model = Card::findModel($id);
+        return $model->back;
+    }
 }
