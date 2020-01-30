@@ -56,4 +56,6 @@ class Deck extends ActiveRecord
         }
         throw new NotFoundHttpException();
     }
+
+
 }

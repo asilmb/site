@@ -13,18 +13,18 @@ namespace app\models;
  */
 
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\web\NotFoundHttpException;
 
 class Card extends ActiveRecord
 {
 
 
-
     public function rules()
     {
         return [
-            [['front','back','deck_id'], 'required', 'message' => 'Fill in the field'],
-            [['front','back'], 'string', 'max' => 50],
+            [['front', 'back', 'deck_id'], 'required', 'message' => 'Fill in the field'],
+            [['front', 'back'], 'string', 'max' => 50],
         ];
     }
 
@@ -40,7 +40,7 @@ class Card extends ActiveRecord
 
     public static function findListCard($deck_id)
     {
-        if (($model = Card::findAll(['deck_id'=> $deck_id])) !== null) {
+        if (($model = Card::findAll(['deck_id' => $deck_id])) !== null) {
             return $model;
         }
         throw new NotFoundHttpException();
@@ -53,8 +53,20 @@ class Card extends ActiveRecord
         }
         throw new NotFoundHttpException();
     }
-    public function showAnswer($id){
+
+    public function showAnswer($id)
+    {
         $model = Card::findModel($id);
         return $model->back;
+    }
+
+    public static function nextLearn($deck_id, $previous_id = null)
+    {
+        return Card::find()
+            ->where(['deck_id' => $deck_id])
+            ->orderBy(new Expression('random()'))
+            ->one();
+//            ->where(['<=',['learn_date', $date])
+
     }
 }

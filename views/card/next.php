@@ -3,7 +3,6 @@
 use yii\helpers\Html;
 use yii\widgets\Pjax;
 
-$this->title = 'Study Now';
 $this->registerJsFile(
     '@web/js/scripts.js',
     ['depends' => [\yii\web\JqueryAsset::className()]]
@@ -30,10 +29,5 @@ $this->registerJsFile(
     <?php Pjax::end(); ?>
     <hr>
     <?= Html::button('Show Answer', ['class' => 'btn btn-lg btn-primary']) ?>
-
-
-
-
-
 
 </div>

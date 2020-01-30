@@ -96,4 +96,7 @@ class CardController extends Controller
             throw new NotFoundHttpException('Failed to remove deck.');
         }
     }
+    public function actionNext($deck_id){
+        return $this->renderPartial('next', ['model'=>Card::nextLearn($deck_id)]);
+    }
 }

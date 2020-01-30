@@ -107,23 +107,7 @@ class DeckController extends Controller
     }
 
     public function actionStudy($id){
-        try {
-            $model = Card::find()->where(['deck_id' => $id])->all();
-        } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException('Failed to remove deck.');
-        }
-       if(count($model)==0){
-           throw new NotFoundHttpException('There are no cards in the deck.');
-       }
-        $arrayIndexNumber = count($model)-1;
-        $arrayIndex  = Yii::$app->session->get('arrayIndex', 0);
-       if($arrayIndex>=$arrayIndexNumber){
-           $arrayIndex =-2;
-           Yii::$app->session->set('arrayIndex', ++$arrayIndex);
-           return $this->refresh();
-       }
-        Yii::$app->session->set('arrayIndex', ++$arrayIndex);
-        return $this->render('study',['model'=>$model,'arrayIndex'=>$arrayIndex]);
+        return $this->render('study', ['model'=>Card::nextLearn($id)]);
     }
 
 

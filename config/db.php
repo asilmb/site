@@ -2,17 +2,17 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'pgsql:host=localhost;port=5432;dbname=postgres',
+    'dsn' => 'pgsql:host=localhost;port=5432;dbname=test',
     'username' => 'postgres',
     'password' => '',
     'schemaMap' => [
         'pgsql' => [
             'class' => 'yii\db\pgsql\Schema',
-            'defaultSchema' => 'site' //specify your schema here
+            'defaultSchema' => 'test' //specify your schema here
         ]
     ],
     'on afterOpen' => function ($event) {
-        $event->sender->createCommand("SET search_path TO site")->execute();
+        $event->sender->createCommand("SET search_path TO test")->execute();
     },
     'charset' => 'utf8',
 
