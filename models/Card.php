@@ -10,21 +10,27 @@ namespace app\models;
  * @property int $deck_id
  * @property string $front
  * @property string $back
+ * @property dateTime $study_time
  */
 
+use DateInterval;
+use DateTime;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\web\NotFoundHttpException;
 
 class Card extends ActiveRecord
 {
-
-
+    public function setStudyTime($studyTime)
+    {
+        $this->study_time = $studyTime;
+    }
 
     public function rules()
     {
         return [
-            [['front','back','deck_id'], 'required', 'message' => 'Fill in the field'],
-            [['front','back'], 'string', 'max' => 50],
+            [['front', 'back', 'deck_id',], 'required', 'message' => 'Fill in the field'],
+            [['front', 'back'], 'string', 'max' => 50],
         ];
     }
 
@@ -40,7 +46,7 @@ class Card extends ActiveRecord
 
     public static function findListCard($deck_id)
     {
-        if (($model = Card::findAll(['deck_id'=> $deck_id])) !== null) {
+        if (($model = Card::findAll(['deck_id' => $deck_id])) !== null) {
             return $model;
         }
         throw new NotFoundHttpException();
@@ -53,8 +59,29 @@ class Card extends ActiveRecord
         }
         throw new NotFoundHttpException();
     }
-    public function showAnswer($id){
-        $model = Card::findModel($id);
-        return $model->back;
+
+    public static function findCard($deck_id)
+    {
+        $date = new DateTime();
+        $date = $date->format('Y-m-d');
+        $card = Card::find()
+            ->where(['deck_id' => $deck_id])
+            ->andWhere(['<=', 'study_time', $date])
+            ->orderBy(new Expression('random()'))
+            ->one();
+        if (!$card) {
+            throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
+        }
+        return $card;
     }
+
+    public static function nextDay()
+    {
+        $date = new DateTime();
+        $date->add(new DateInterval('P1D'));
+        $date = $date->format('Y-m-d');
+        return $date;
+    }
+
+
 }

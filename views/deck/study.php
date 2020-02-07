@@ -14,26 +14,24 @@ $this->registerJsFile(
 <div class="container" style="text-align: center">
     <?php Pjax::begin(); ?>
 
-    <h2><?= $model[$arrayIndex]['front']; ?></h2>
+    <h2><?= $model['front']; ?></h2>
     <hr>
     <h2 class="invisible">
-        <?= $model[$arrayIndex]['back']; ?>
+        <?= $model['back']; ?>
     </h2>
 
+    <?php Pjax::end(); ?>
     <div class="invisible ">
         <p>
             Remember this word?
         </p>
-        <?= Html::a("Next", ['study','id' => $model[0]['deck_id']], ['class' => 'btn  btn-success']);?>
+
+        <?= Html::submitButton('Yes', ['id' => $model['deck_id'], 'class' => 'btn btn-success']) ?>
+
+        <?= Html::a("No", ['study', 'id' => $model['deck_id']], ['class' => 'btn  btn-danger']); ?>
 
     </div>
-    <?php Pjax::end(); ?>
     <hr>
     <?= Html::button('Show Answer', ['class' => 'btn btn-lg btn-primary']) ?>
-
-
-
-
-
 
 </div>
