@@ -6,6 +6,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Card;
 use app\models\Deck;
+use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -50,6 +51,7 @@ class CardController extends Controller
         $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
         $model = new Card();
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+            $model->setStudyTime(new Expression('NOW()'));
             try {
                 if ($model->save()) {
                     Yii::$app->session->setFlash('success', 'Card successfully added');
@@ -96,4 +98,5 @@ class CardController extends Controller
             throw new NotFoundHttpException('Failed to remove deck.');
         }
     }
+
 }

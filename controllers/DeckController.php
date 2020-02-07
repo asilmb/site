@@ -106,26 +106,26 @@ class DeckController extends Controller
         }
     }
 
-    public function actionStudy($id){
+    public function actionStudy($id)
+    {
         try {
-            $model = Card::find()->where(['deck_id' => $id])->all();
+            $model = Card::findCard($id);
         } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException('Failed to remove deck.');
+            throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
         }
-       if(count($model)==0){
-           throw new NotFoundHttpException('There are no cards in the deck.');
-       }
-        $arrayIndexNumber = count($model)-1;
-        $arrayIndex  = Yii::$app->session->get('arrayIndex', 0);
-       if($arrayIndex>=$arrayIndexNumber){
-           $arrayIndex =-2;
-           Yii::$app->session->set('arrayIndex', ++$arrayIndex);
-           return $this->refresh();
-       }
-        Yii::$app->session->set('arrayIndex', ++$arrayIndex);
-        return $this->render('study',['model'=>$model,'arrayIndex'=>$arrayIndex]);
-    }
+        if (\Yii::$app->request->isAjax) {
+            $model->setStudyTime(Card::nextDay());
+            try {
+                $model->save();
+            } catch (\Exception $e) {
+                throw new HttpException(500, $e->getMessage());
+            }
 
+            return $this->refresh();
+        }
+
+        return $this->render('study', ['model' => $model]);
+    }
 
     public function actions()
     {
