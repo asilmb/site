@@ -25,7 +25,7 @@ class Card extends ActiveRecord
     private $deck_id;
     private $front;
     private $back;
-    private $study_time;
+    public $study_time;
 
 
     public function setStudyTime($studyTime)
@@ -40,7 +40,7 @@ class Card extends ActiveRecord
     public function rules()
     {
         return [
-            [['front', 'back', 'deck_id'], 'safe'],
+            [['front', 'back', 'deck_id', 'study_time'], 'safe'],
         ];
     }
 
@@ -66,7 +66,8 @@ class Card extends ActiveRecord
         $date = $date->format('Y-m-d');
         $card = Card::find()
             ->where(['deck_id' => $deck_id])
-            ->andWhere(['<=', 'study_time', $date])
+            ->orWhere(['<=', 'study_time', $date])
+            ->orWhere(['=', 'study_time', null])
             ->orderBy(new Expression('random()'))
             ->one();
         if (!$card) {

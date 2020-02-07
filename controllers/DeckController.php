@@ -75,7 +75,7 @@ class DeckController extends Controller
             return $this->render('view', [
                 'model' => Deck::findModel($id),
                 'dataProvider' => $dataProvider,
-                'isEmpty' => $dataProvider->getCount() > 0 ?  false : true,
+                'isEmpty' => $dataProvider->getCount() > 0 ? false : true,
             ]);
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
@@ -108,25 +108,31 @@ class DeckController extends Controller
         }
     }
 
-    public function actionStudy($id)
+    public function actionStudy($id, $card_id = null, $success = null)
+    {
+        if (\Yii::$app->request->isAjax) {
+            if ($success) {
+                $model = Card::find()->one($card_id);
+                $model->setStudyTime(Card::nextDay());
+                try {
+                    $model->update();
+                } catch (\Exception $e) {
+                    throw new HttpException(500, $e->getMessage());
+                }
+            }
+            return $this->renderPartial('study', ['model' => $this->getNewCard($id)]);
+        }
+
+        return $this->render('study', ['model' => $this->getNewCard($id)]);
+    }
+
+    private function getNewCard($id): Card
     {
         try {
-            $model = Card::findCard($id);
+            return Card::findCard($id);
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
         }
-        if (\Yii::$app->request->isAjax) {
-            $model->setStudyTime(Card::nextDay());
-            try {
-                $model->save();
-            } catch (\Exception $e) {
-                throw new HttpException(500, $e->getMessage());
-            }
-
-            return $this->refresh();
-        }
-
-        return $this->render('study', ['model' => $model]);
     }
 
     public function actions()

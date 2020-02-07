@@ -57,7 +57,7 @@ class CardController extends Controller
             try {
                 if ($cardModel->save()) {
                     Yii::$app->session->setFlash('success', 'Card successfully added');
-                    return $this->redirect(['create']);
+                    return $this->redirect(['create', 'deck_id' => $deck_id]);
                 }
             } catch (\Exception $e) {
                 throw new HttpException(500, $e->getMessage());

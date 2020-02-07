@@ -33,7 +33,7 @@ class CardForm extends Model
     public function rules()
     {
         return [
-            [['front', 'back', 'deck_id',], 'required', 'message' => 'Fill in the field'],
+            [['front', 'back', 'deck_id'], 'required', 'message' => 'Fill in the field'],
             [['front', 'back'], 'string', 'max' => 50],
             [['deck_id', 'back'], 'safe'],
         ];

@@ -11,7 +11,7 @@ $this->registerJsFile(
 
 ?>
 
-<div class="container" style="text-align: center">
+<div id='study' class="container" style="text-align: center">
     <?php Pjax::begin(); ?>
 
     <h2><?= $model['front']; ?></h2>
@@ -20,18 +20,20 @@ $this->registerJsFile(
         <?= $model['back']; ?>
     </h2>
 
-    <?php Pjax::end(); ?>
+
     <div class="invisible ">
         <p>
             Remember this word?
         </p>
 
-        <?= Html::submitButton('Yes', ['id' => $model['deck_id'], 'class' => 'btn btn-success']) ?>
+        <?= Html::a("Yes", ['study', 'id' => $model['deck_id'], 'card_id' => $model->id, 'success' => true], ['class' => 'btn  btn-success']); ?>
 
-        <?= Html::a("No", ['study', 'id' => $model['deck_id']], ['class' => 'btn  btn-danger']); ?>
+        <?= Html::a("No", ['study', 'id' => $model['deck_id'], 'card_id' => $model->id, 'success' => false], ['class' => 'btn  btn-danger']); ?>
 
     </div>
     <hr>
+    <?php Pjax::end(); ?>
+
     <?= Html::button('Show Answer', ['class' => 'btn btn-lg btn-primary']) ?>
 
 </div>
