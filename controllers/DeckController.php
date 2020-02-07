@@ -70,10 +70,12 @@ class DeckController extends Controller
                 'pageSize' => 20,
             ],
         ]);
+
         try {
             return $this->render('view', [
                 'model' => Deck::findModel($id),
                 'dataProvider' => $dataProvider,
+                'isEmpty' => $dataProvider->getCount() > 0 ?  false : true,
             ]);
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();

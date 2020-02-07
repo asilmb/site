@@ -3,12 +3,14 @@
 
 namespace app\controllers;
 
+use app\forms\CardForm;
 use Yii;
 use app\models\Card;
 use app\models\Deck;
 use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -45,15 +47,15 @@ class CardController extends Controller
         ];
     }
 
-    public function actionCreate()
+    public function actionCreate($deck_id = null)
     {
-
-        $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
-        $model = new Card();
-        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-            $model->setStudyTime(new Expression('NOW()'));
+        $cardForm = new CardForm();
+        if (\Yii::$app->request->post()) {
+            $cardModel = new Card(\Yii::$app->request->getBodyParam('CardForm'));
+            $cardModel->validate();
+            $cardModel->setStudyTime(new Expression('NOW()'));
             try {
-                if ($model->save()) {
+                if ($cardModel->save()) {
                     Yii::$app->session->setFlash('success', 'Card successfully added');
                     return $this->redirect(['create']);
                 }
@@ -61,7 +63,9 @@ class CardController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('create', ['model' => $model, 'deckList' => $deckList]);
+        $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
+        $cardForm->deck_id = $deck_id;
+        return $this->render('create', ['model' => $cardForm, 'deckList' => $deckList]);
     }
 
     public function actionUpdate($id)
