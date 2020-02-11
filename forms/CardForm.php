@@ -15,12 +15,10 @@ namespace app\forms;
  * @property dateTime $study_time
  */
 
-use DateInterval;
+
 use DateTime;
 use yii\base\Model;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
-use yii\web\NotFoundHttpException;
+
 
 class CardForm extends Model
 {
@@ -33,9 +31,10 @@ class CardForm extends Model
     public function rules()
     {
         return [
-            [['front', 'back', 'deck_id'], 'required', 'message' => 'Fill in the field'],
+            [['front', 'back', 'deck_id','study_time'], 'required', 'message' => 'Fill in the field'],
             [['front', 'back'], 'string', 'max' => 50],
-            [['deck_id', 'back'], 'safe'],
+            ['study_time', 'date', 'format' => 'php:Y-m-d'],
+            [['deck_id', 'back',], 'safe'],
         ];
     }
 

@@ -40,18 +40,18 @@ class DeckController extends Controller
     public function actionIndex()
     {
 
-        $model = Deck::findAll(['user_id' => Yii::$app->user->id]);
-        $decksNumber = count($model);
-        return $this->render('index', ['model' => $model, 'decksNumber' => $decksNumber]);
+        $deckModel = Deck::findAll(['user_id' => Yii::$app->user->id]);
+        $decksNumber = count($deckModel);
+        return $this->render('index', ['model' => $deckModel, 'decksNumber' => $decksNumber]);
     }
 
     public function actionCreate()
     {
-        $model = new Deck();
-        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-            $model->setUserId(Yii::$app->user->id);
+        $deckModel = new Deck();
+        if ($deckModel->load(\Yii::$app->request->post()) && $deckModel->validate()) {
+            $deckModel->setUserId(Yii::$app->user->id);
             try {
-                if ($model->save()) {
+                if ($deckModel->save()) {
                     Yii::$app->session->setFlash('success', 'Deck successfully added');
                     return $this->redirect('index');
                 }
@@ -59,7 +59,7 @@ class DeckController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('create', ['model' => $model]);
+        return $this->render('create', ['model' => $deckModel]);
     }
 
     public function actionView($id)
@@ -112,10 +112,10 @@ class DeckController extends Controller
     {
         if (\Yii::$app->request->isAjax) {
             if ($success) {
-                $model = Card::find()->one($card_id);
-                $model->setStudyTime(Card::nextDay());
+                $cardModel = Card::findModel($card_id);
+                $cardModel->setStudyTime(Card::nextDay());
                 try {
-                    $model->update();
+                    $cardModel->update();
                 } catch (\Exception $e) {
                     throw new HttpException(500, $e->getMessage());
                 }

@@ -4,13 +4,13 @@
 namespace app\models;
 
 /**
- * This is the model class for table "deck".
+ * This is the model class for table "card".
  *
  * @property int $id
  * @property int $deck_id
  * @property string $front
  * @property string $back
- * @property dateTime $study_time
+ * @property date $study_time
  */
 
 use DateInterval;
@@ -21,17 +21,12 @@ use yii\web\NotFoundHttpException;
 
 class Card extends ActiveRecord
 {
-    private $id;
-    private $deck_id;
-    private $front;
-    private $back;
-    public $study_time;
 
-
-    public function setStudyTime($studyTime)
+    public static function tableName()
     {
-        $this->study_time = $studyTime;
+        return '{{card}}';
     }
+
     public function __construct($config = [])
     {
         parent::__construct($config);
@@ -66,8 +61,7 @@ class Card extends ActiveRecord
         $date = $date->format('Y-m-d');
         $card = Card::find()
             ->where(['deck_id' => $deck_id])
-            ->orWhere(['<=', 'study_time', $date])
-            ->orWhere(['=', 'study_time', null])
+            ->andWhere(['<=', 'study_time', $date])
             ->orderBy(new Expression('random()'))
             ->one();
         if (!$card) {
@@ -144,7 +138,10 @@ class Card extends ActiveRecord
     {
         return $this->deck_id;
     }
-
+    public function setStudyTime($studyTime)
+    {
+        $this->study_time = $studyTime;
+    }
     /**
      * @return mixed
      */

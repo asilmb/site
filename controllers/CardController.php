@@ -10,7 +10,6 @@ use app\models\Deck;
 use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -72,29 +71,29 @@ class CardController extends Controller
     {
         $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
         try {
-            $model = Card::findModel($id);
+            $cardModel = Card::findModel($id);
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['deck/view', 'id' => $model->deck_id]);
+        if ($cardModel->load(Yii::$app->request->post()) && $cardModel->save()) {
+            return $this->redirect(['deck/view', 'id' => $cardModel->deck_id]);
         }
 
-        return $this->render('update', ['model' => $model, 'deckList' => $deckList]);
+        return $this->render('update', ['model' => $cardModel, 'deckList' => $deckList]);
     }
 
     public function actionDelete($id)
     {
         try {
-            $model = Card::findModel($id);
-            $deckId = $model->deck_id;
+            $cardModel = Card::findModel($id);
+            $deckId = $cardModel->deck_id;
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
         }
         try {
 
-            if ($model->delete()) {
+            if ($cardModel->delete()) {
                 Yii::$app->session->setFlash('success', 'Card successfully deleted');
                 return $this->redirect(['deck/view', 'id' => $deckId]);
             }
