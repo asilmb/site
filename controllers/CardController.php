@@ -3,6 +3,7 @@
 
 namespace app\controllers;
 
+use app\forms\CardForm;
 use Yii;
 use app\models\Card;
 use app\models\Deck;
@@ -45,52 +46,54 @@ class CardController extends Controller
         ];
     }
 
-    public function actionCreate()
+    public function actionCreate($deck_id = null)
     {
-
-        $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
-        $model = new Card();
-        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-            $model->setStudyTime(new Expression('NOW()'));
+        $cardForm = new CardForm();
+        if (\Yii::$app->request->post()) {
+            $cardModel = new Card(\Yii::$app->request->getBodyParam('CardForm'));
+            $cardModel->validate();
+            $cardModel->setStudyTime(new Expression('NOW()'));
             try {
-                if ($model->save()) {
+                if ($cardModel->save()) {
                     Yii::$app->session->setFlash('success', 'Card successfully added');
-                    return $this->redirect(['create']);
+                    return $this->redirect(['create', 'deck_id' => $deck_id]);
                 }
             } catch (\Exception $e) {
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('create', ['model' => $model, 'deckList' => $deckList]);
+        $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
+        $cardForm->deck_id = $deck_id;
+        return $this->render('create', ['model' => $cardForm, 'deckList' => $deckList]);
     }
 
     public function actionUpdate($id)
     {
         $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
         try {
-            $model = Card::findModel($id);
+            $cardModel = Card::findModel($id);
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['deck/view', 'id' => $model->deck_id]);
+        if ($cardModel->load(Yii::$app->request->post()) && $cardModel->save()) {
+            return $this->redirect(['deck/view', 'id' => $cardModel->deck_id]);
         }
 
-        return $this->render('update', ['model' => $model, 'deckList' => $deckList]);
+        return $this->render('update', ['model' => $cardModel, 'deckList' => $deckList]);
     }
 
     public function actionDelete($id)
     {
         try {
-            $model = Card::findModel($id);
-            $deckId = $model->deck_id;
+            $cardModel = Card::findModel($id);
+            $deckId = $cardModel->deck_id;
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
         }
         try {
 
-            if ($model->delete()) {
+            if ($cardModel->delete()) {
                 Yii::$app->session->setFlash('success', 'Card successfully deleted');
                 return $this->redirect(['deck/view', 'id' => $deckId]);
             }

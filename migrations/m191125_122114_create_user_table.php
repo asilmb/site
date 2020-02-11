@@ -18,6 +18,7 @@ class m191125_122114_create_user_table extends Migration
             'password'=>$this ->string(255)->notNull(),
             'role' =>$this->string(255)->notNull()->defaultValue('user'),
             'mail'=>$this->string(255)->notNull()->unique()
+
         ]);
     }
 
