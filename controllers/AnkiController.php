@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\forms\MailRequestPasswordResetForm;
+use app\forms\NewPasswordForm;
 use app\models\LoginForm;
 use app\models\SignUpForm;
 use yii\web\Controller;
@@ -24,11 +26,11 @@ class AnkiController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['login', 'logout', 'signUp', 'registration'],
+                'only' => ['login', 'logout', 'signUp', 'registration','reset-password','request-password-reset'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['login', 'signUp', 'registration'],
+                        'actions' => ['login', 'signUp', 'registration','reset-password','request-password-reset'],
                         'roles' => ['?'],
                     ],
                     [
@@ -38,7 +40,7 @@ class AnkiController extends Controller
                     ],
                     [
                         'allow' => false,
-                        'actions' => ['registration'],
+                        'actions' => ['registration','reset-password','request-password-reset'],
                         'roles' => ['@'],
                     ]
                 ],
@@ -142,6 +144,46 @@ class AnkiController extends Controller
         return $this->goHome();
     }
 
+    public function actionRequestPasswordReset(){
+        $mailForm = new MailRequestPasswordResetForm();
+        if ($mailForm->load(Yii::$app->request->post()) && $mailForm->validate()) {
+            $mail = new Mail();
+            $mail->setMail($mailForm->mail);
+            $mail->setHash($mailForm->mail);
+            try {
+                if ($mail->save()) {
+                    $mail->sendEmail();
+                    Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
+                    return $this->goHome();
+                }
+            } catch (\Exception $e) {
+                throw new HttpException(500, $e->getMessage());
+            }
+        }
+        return $this->render('requestPasswordReset',['model'=>$mailForm]);
+    }
+
+    public function actionResetPassword(){
+        $newPasswordForm = new NewPasswordForm();
+        $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
+        if (!$mail) {
+            throw new HttpException(422, 'Error');
+        }
+        if ($newPasswordForm->load(Yii::$app->request->post()) && $newPasswordForm->validate()){
+            $user = User::findOne(['mail'=>$mail->getMail()]);
+            $user->setPassword(\Yii::$app->security->generatePasswordHash($newPasswordForm->password));
+            try {
+                if ($user->save()) {
+                    $mail->delete();
+                    Yii::$app->session->setFlash('success', 'New password save');
+                    return $this->redirect('login');
+                }
+            } catch (\Exception $e) {
+                throw new HttpException(500, $e->getMessage());
+            }
+        }
+        return $this->render('resetPassword',['model'=>$newPasswordForm]);
+    }
     /**
      * {@inheritdoc}
      */
