@@ -5,6 +5,7 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
+    'name'=>'Anki',
     'basePath' => dirname(__DIR__),
     'defaultRoute' => 'anki/index',
     'bootstrap' => ['log'],

@@ -4,13 +4,13 @@
 namespace app\models;
 
 /**
- * This is the model class for table "deck".
+ * This is the model class for table "card".
  *
  * @property int $id
  * @property int $deck_id
  * @property string $front
  * @property string $back
- * @property dateTime $study_time
+ * @property date $study_time
  */
 
 use DateInterval;
@@ -21,26 +21,21 @@ use yii\web\NotFoundHttpException;
 
 class Card extends ActiveRecord
 {
-    public function setStudyTime($studyTime)
+
+    public static function tableName()
     {
-        $this->study_time = $studyTime;
+        return '{{card}}';
+    }
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
     }
 
     public function rules()
     {
         return [
-            [['front', 'back', 'deck_id',], 'required', 'message' => 'Fill in the field'],
-            [['front', 'back'], 'string', 'max' => 50],
-        ];
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'deck_id' => 'Deck Name',
-            'front' => 'Front side of the card',
-            'back' => 'Back side of the card',
-
+            [['front', 'back', 'deck_id', 'study_time'], 'safe'],
         ];
     }
 
@@ -81,6 +76,78 @@ class Card extends ActiveRecord
         $date->add(new DateInterval('P1D'));
         $date = $date->format('Y-m-d');
         return $date;
+    }
+
+    public function setDeckId($deck_id)
+    {
+        $this->deck_id = $deck_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFront()
+    {
+        return $this->front;
+    }
+
+    /**
+     * @param mixed $front
+     */
+    public function setFront($front)
+    {
+        $this->front = $front;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBack()
+    {
+        return $this->back;
+    }
+
+    /**
+     * @param mixed $back
+     */
+    public function setBack($back)
+    {
+        $this->back = $back;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDeckId()
+    {
+        return $this->deck_id;
+    }
+    public function setStudyTime($studyTime)
+    {
+        $this->study_time = $studyTime;
+    }
+    /**
+     * @return mixed
+     */
+    public function getStudyTime()
+    {
+        return $this->study_time;
     }
 
 
