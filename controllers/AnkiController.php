@@ -167,7 +167,7 @@ class AnkiController extends Controller
         $newPasswordForm = new NewPasswordForm();
         $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
         if (!$mail) {
-            throw new HttpException(422, 'Error');
+            throw new HttpException(422, 'Email address not found');
         }
         if ($newPasswordForm->load(Yii::$app->request->post()) && $newPasswordForm->validate()){
             $user = User::findOne(['mail'=>$mail->getMail()]);

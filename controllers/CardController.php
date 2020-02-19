@@ -49,9 +49,8 @@ class CardController extends Controller
     public function actionCreate($deck_id = null)
     {
         $cardForm = new CardForm();
-        if (\Yii::$app->request->post()) {
+        if ($cardForm->load(Yii::$app->request->post()) && $cardForm->validate()) {
             $cardModel = new Card(\Yii::$app->request->getBodyParam('CardForm'));
-            $cardModel->validate();
             $cardModel->setStudyTime(new Expression('NOW()'));
             try {
                 if ($cardModel->save()) {
@@ -62,6 +61,19 @@ class CardController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
+//        if (\Yii::$app->request->post()) {
+//            $cardModel = new Card(\Yii::$app->request->getBodyParam('CardForm'));
+//            $cardModel->validate();
+//            $cardModel->setStudyTime(new Expression('NOW()'));
+//            try {
+//                if ($cardModel->save()) {
+//                    Yii::$app->session->setFlash('success', 'Card successfully added');
+//                    return $this->redirect(['create', 'deck_id' => $deck_id]);
+//                }
+//            } catch (\Exception $e) {
+//                throw new HttpException(500, $e->getMessage());
+//            }
+//        }
         $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
         $cardForm->deck_id = $deck_id;
         return $this->render('create', ['model' => $cardForm, 'deckList' => $deckList]);

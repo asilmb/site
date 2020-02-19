@@ -31,7 +31,7 @@ class CardForm extends Model
     public function rules()
     {
         return [
-            [['front', 'back', 'deck_id','study_time'], 'required', 'message' => 'Fill in the field'],
+            [['front', 'back', 'deck_id',], 'required', 'message' => 'Fill in the field'],
             [['front', 'back'], 'string', 'max' => 50],
             ['study_time', 'date', 'format' => 'php:Y-m-d'],
             [['deck_id', 'back',], 'safe'],
