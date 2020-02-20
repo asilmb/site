@@ -4,6 +4,7 @@
 namespace app\controllers;
 
 use app\forms\CardForm;
+use app\models\ImageUpload;
 use Yii;
 use app\models\Card;
 use app\models\Deck;
@@ -13,6 +14,7 @@ use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 class CardController extends Controller
 {
@@ -48,11 +50,13 @@ class CardController extends Controller
 
     public function actionCreate($deck_id = null)
     {
+        $imgModel = new ImageUpload;
         $cardForm = new CardForm();
-        if (\Yii::$app->request->post()) {
+        if ($cardForm->load(Yii::$app->request->post()) && $cardForm->validate()) {
             $cardModel = new Card(\Yii::$app->request->getBodyParam('CardForm'));
-            $cardModel->validate();
             $cardModel->setStudyTime(new Expression('NOW()'));
+            $file = UploadedFile::getInstance($imgModel, 'image');
+            $cardModel->saveImage($imgModel->uploadFile($file, $cardModel->image));
             try {
                 if ($cardModel->save()) {
                     Yii::$app->session->setFlash('success', 'Card successfully added');
@@ -64,7 +68,7 @@ class CardController extends Controller
         }
         $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
         $cardForm->deck_id = $deck_id;
-        return $this->render('create', ['model' => $cardForm, 'deckList' => $deckList]);
+        return $this->render('create', ['imgModel' => $imgModel, 'model' => $cardForm, 'deckList' => $deckList]);
     }
 
     public function actionUpdate($id)

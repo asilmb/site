@@ -71,4 +71,8 @@ class User extends ActiveRecord implements IdentityInterface
         return \Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
 }

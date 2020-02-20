@@ -16,6 +16,10 @@ $this->registerJsFile(
 
     <h2><?= $model['front']; ?></h2>
     <hr>
+
+    <?= Html::img($model->getImage(),['width'=>400]); ?>
+
+    <hr>
     <h2 class="invisible">
         <?= $model['back']; ?>
     </h2>

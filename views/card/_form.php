@@ -5,6 +5,7 @@ use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Card */
+/* @var $imgModel app\models\Card */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -17,6 +18,10 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'front') ?>
 
     <?= $form->field($model, 'back') ?>
+
+    <p style="color: red">Card image is optional</p>
+
+    <?= $form->field($imgModel, 'image')->fileInput() ?>
 
     <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
 

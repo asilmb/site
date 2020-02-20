@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 ?>
-<div class="password-reset">
+<div>
     <p>Hello friend,</p>
 
     <p>Follow the link below to confirm your email:</p>
