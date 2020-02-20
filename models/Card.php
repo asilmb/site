@@ -15,6 +15,7 @@ namespace app\models;
 
 use DateInterval;
 use DateTime;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\web\NotFoundHttpException;
@@ -138,10 +139,12 @@ class Card extends ActiveRecord
     {
         return $this->deck_id;
     }
+
     public function setStudyTime($studyTime)
     {
         $this->study_time = $studyTime;
     }
+
     /**
      * @return mixed
      */
@@ -150,5 +153,29 @@ class Card extends ActiveRecord
         return $this->study_time;
     }
 
+    public function saveImage($filename)
+    {
+        $this->image = $filename;
+        $this->save(false);
+    }
 
+    public function getImage()
+    {
+        if ($this->image) {
+            return '/web/uploads/' . $this->image;
+        }
+        return false;
+    }
+
+    public function deleteImage()
+    {
+        $imageUploadModel = new ImageUpload();
+        $imageUploadModel->deleteCurrentImage($this->image);
+    }
+
+    public function beforeDelete()
+    {
+        $this->deleteImage();
+        return parent::beforeDelete();
+    }
 }
