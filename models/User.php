@@ -75,4 +75,24 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password = $password;
     }
+
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    public function setMail($mail)
+    {
+        $this->mail = $mail;
+    }
+
+    public function getMail()
+    {
+        return $this->mail;
+    }
 }

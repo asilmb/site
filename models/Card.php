@@ -56,7 +56,7 @@ class Card extends ActiveRecord
         throw new NotFoundHttpException();
     }
 
-    public static function findCard($deck_id)
+    public static function findCard($deck_id,$previous_id = null)
     {
         $date = new DateTime();
         $date = $date->format('Y-m-d');
@@ -68,6 +68,10 @@ class Card extends ActiveRecord
         if (!$card) {
             throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
         }
+        if($card->id == $previous_id){
+            return self::findCard($deck_id,$previous_id);
+        }
+
         return $card;
     }
 
@@ -169,7 +173,7 @@ class Card extends ActiveRecord
 
     public function deleteImage()
     {
-        $imageUploadModel = new ImageUpload();
+        $imageUploadModel = new Upload();
         $imageUploadModel->deleteCurrentImage($this->image);
     }
 

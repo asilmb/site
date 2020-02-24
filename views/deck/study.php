@@ -30,9 +30,9 @@ $this->registerJsFile(
             Remember this word?
         </p>
 
-        <?= Html::a("Yes", ['study', 'id' => $model['deck_id'], 'card_id' => $model->id, 'success' => true], ['class' => 'btn  btn-success']); ?>
+        <?= Html::a("Yes", ['study', 'deckId' => $model['deck_id'], 'card_id' => $model->getId(), 'success' => true], ['class' => 'btn  btn-success']); ?>
 
-        <?= Html::a("No", ['study', 'id' => $model['deck_id'], 'card_id' => $model->id, 'success' => false], ['class' => 'btn  btn-danger']); ?>
+        <?= Html::a("No", ['study', 'deckId' => $model['deck_id'], 'card_id' => $model->getId(), 'success' => false], ['class' => 'btn  btn-danger']); ?>
 
     </div>
     <hr>

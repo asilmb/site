@@ -3,18 +3,15 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
-$this->title = 'Update Deck: ' . $model->name;
+$this->title = 'Update Deck: ' . $model->getDeckName();
 $this->params['breadcrumbs'][] = ['label' => 'Decks', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $model->getDeckName(), 'url' => ['view', 'deckId' => $model->getId()]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
 <div>
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?php $form = ActiveForm::begin() ?>
-    <?= $form->field($model, 'name') ?>
-    <?= Html::submitButton('Update', ['class' => 'btn btn-primary']) ?>
-    <?php $form = ActiveForm::end() ?>
+    <?= $this->render('_form', [
+        'model' => $model,
+    ]) ?>
 
 </div>

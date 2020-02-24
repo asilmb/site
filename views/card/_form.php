@@ -21,9 +21,9 @@ use yii\widgets\ActiveForm;
 
     <p style="color: red">Card image is optional</p>
 
-    <?= $form->field($imgModel, 'image')->fileInput() ?>
+    <?= $form->field($uploadModel, 'image')->fileInput() ?>
 
-    <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
+    <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
 
     <?php $form = ActiveForm::end() ?>
 

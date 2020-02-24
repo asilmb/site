@@ -5,9 +5,9 @@ namespace app\controllers;
 use app\forms\MailRequestPasswordResetForm;
 use app\forms\NewPasswordForm;
 use app\models\LoginForm;
-use app\models\SignUpForm;
+use app\forms\SignUpForm;
 use yii\web\Controller;
-use app\models\SignupFormMail;
+use app\forms\MailForm;
 use Yii;
 use app\models\User;
 use app\models\Mail;
@@ -26,11 +26,11 @@ class AnkiController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['login', 'logout', 'signUp', 'registration','reset-password','request-password-reset'],
+                'only' => ['login', 'logout', 'signUp', 'registration', 'reset-password', 'request-password-reset'],
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['login', 'signUp', 'registration','reset-password','request-password-reset'],
+                        'actions' => ['login', 'signUp', 'registration', 'reset-password', 'request-password-reset'],
                         'roles' => ['?'],
                     ],
                     [
@@ -40,7 +40,7 @@ class AnkiController extends Controller
                     ],
                     [
                         'allow' => false,
-                        'actions' => ['registration','reset-password','request-password-reset'],
+                        'actions' => ['registration', 'reset-password', 'request-password-reset'],
                         'roles' => ['@'],
                     ]
                 ],
@@ -60,15 +60,15 @@ class AnkiController extends Controller
 
     public function actionRegistration()
     {
-        $model = new SignUpFormMail();
+        $mailForm = new MailForm();
 
-        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+        if ($mailForm->load(\Yii::$app->request->post()) && $mailForm->validate()) {
             $mail = new Mail();
-            $mail->mail = $model->mail;
-            $mail->hash = hash("md5", $model->mail);
+            $mail->setMail($mailForm->mail);
+            $mail->setHash($mailForm->mail);
             try {
                 if ($mail->save()) {
-                    $this->sentEmail($mail);
+                    $mail->sendEmailForRegistration();
                     Yii::$app->session->setFlash('success', 'Сonfirm your email. Check your email.');
                     return $this->goHome();
                 }
@@ -76,34 +76,21 @@ class AnkiController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('registration', ['model' => $model]);
-    }
-
-
-    public function sentEmail(Mail $mail)
-    {
-        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl([YII::$app->params['signUp'], 'hash' => $mail->hash]);
-        Yii::$app->mailer->compose(['html' => 'user-signup-comfirm-html'], ['confirmLink' => $confirmLink])
-            ->setTo($mail->mail)
-            ->setFrom('anki@gmail.com')
-            ->setSubject('Confirmation of registration')
-            ->send();
-        return true;
+        return $this->render('registration', ['model' => $mailForm]);
     }
 
     public function actionSignUp()
     {
-        $model = new SignUpForm();
+        $registrationForm = new SignUpForm();
         $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
         if (!$mail) {
             throw new HttpException(422, 'Mail didn\'t send');
         }
-        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
-
+        if ($registrationForm->load(\Yii::$app->request->post()) && $registrationForm->validate()) {
             $user = new User();
-            $user->username = $model->username;
-            $user->password = \Yii::$app->security->generatePasswordHash($model->password);
-            $user->mail = $mail->mail;
+            $user->setUsername($registrationForm->username);
+            $user->setPassword(\Yii::$app->security->generatePasswordHash($registrationForm->password));
+            $user->setMail($mail->getMail());
             try {
                 if ($user->save()) {
                     $mail->delete();
@@ -115,7 +102,7 @@ class AnkiController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('signUp', ['model' => $model]);
+        return $this->render('signUp', ['model' => $registrationForm]);
     }
 
 
@@ -126,17 +113,9 @@ class AnkiController extends Controller
 
             return $this->goHome();
         }
-
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        return $this->render('login', ['model' => $model,]);
     }
 
-    /**
-     * Logout action.
-     *
-     * @return Response
-     */
     public function actionLogout()
     {
         Yii::$app->user->logout();
@@ -144,33 +123,39 @@ class AnkiController extends Controller
         return $this->goHome();
     }
 
-    public function actionRequestPasswordReset(){
+    public function actionRequestPasswordReset()
+    {
         $mailForm = new MailRequestPasswordResetForm();
         if ($mailForm->load(Yii::$app->request->post()) && $mailForm->validate()) {
             $mail = new Mail();
             $mail->setMail($mailForm->mail);
             $mail->setHash($mailForm->mail);
-            try {
-                if ($mail->save()) {
-                    $mail->sendEmail();
-                    Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
-                    return $this->goHome();
+            if (Mail::findOne($mailForm->mail)) {
+                Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
+            } else {
+                try {
+                    if ($mail->save()) {
+                        $mail->sendPasswordRecoveryEmail();
+                        Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
+                        return $this->goHome();
+                    }
+                } catch (\Exception $e) {
+                    throw new HttpException(500, $e->getMessage());
                 }
-            } catch (\Exception $e) {
-                throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('requestPasswordReset',['model'=>$mailForm]);
+        return $this->render('requestPasswordReset', ['model' => $mailForm]);
     }
 
-    public function actionResetPassword(){
+    public function actionResetPassword()
+    {
         $newPasswordForm = new NewPasswordForm();
         $mail = Mail::findOne(['hash' => Yii::$app->request->get('hash')]);
         if (!$mail) {
             throw new HttpException(422, 'Email address not found');
         }
-        if ($newPasswordForm->load(Yii::$app->request->post()) && $newPasswordForm->validate()){
-            $user = User::findOne(['mail'=>$mail->getMail()]);
+        if ($newPasswordForm->load(Yii::$app->request->post()) && $newPasswordForm->validate()) {
+            $user = User::findOne(['mail' => $mail->getMail()]);
             $user->setPassword(\Yii::$app->security->generatePasswordHash($newPasswordForm->password));
             try {
                 if ($user->save()) {
@@ -182,8 +167,9 @@ class AnkiController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('resetPassword',['model'=>$newPasswordForm]);
+        return $this->render('resetPassword', ['model' => $newPasswordForm]);
     }
+
     /**
      * {@inheritdoc}
      */

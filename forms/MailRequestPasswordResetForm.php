@@ -3,10 +3,17 @@
 
 namespace app\forms;
 
+/**
+ * Class MailRequestPasswordResetForm
+ *
+ * This is the form class "mail".
+ *
+ * @property int $id
+ * @property string $mail
+ * @property string $hash
+ */
 
-use app\models\Mail;
 use app\models\User;
-use Yii;
 use yii\base\Model;
 
 class MailRequestPasswordResetForm extends Model
@@ -18,6 +25,7 @@ class MailRequestPasswordResetForm extends Model
         return [
             [['mail'], 'required', 'message' => 'Fill in the field'],
             ['mail', 'email', 'message' => "The email isn't correct"],
+            [['mail'],'filter','filter' => function ($value) { return strtolower($value); }],
             ['mail', 'exist','targetClass'=>User::className(),'message' => "A user with such mail does not exist."],
         ];
     }
