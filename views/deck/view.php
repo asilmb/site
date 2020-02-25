@@ -22,15 +22,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?php
         if (!$isEmpty){
-            echo Html::a('Study Now', ['study', 'id' => $model->getId()], ['class' => 'btn btn-success']);
+            echo Html::a('Study Now', ['study', 'deckId' => $model->getId()], ['class' => 'btn btn-success']);
         } else {
-            echo Html::a('Create', ['card/create', 'deck_id' => $model->getId()], ['class' => 'btn btn-primary']);
+            echo Html::a('Create', ['card/create', 'deckId' => $model->getId()], ['class' => 'btn btn-primary']);
         }
          ?>
 
-        <?= Html::a('Update', ['update', 'id' => $model->getId()], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Update', ['update', 'deckId' => $model->getId()], ['class' => 'btn btn-primary']) ?>
 
-        <?= Html::a('Delete', ['delete', 'id' => $model->getId()], [
+        <?= Html::a('Delete', ['delete', 'deckId' => $model->getId()], [
             'class' => 'btn btn-danger',
             'data' => [
                 'confirm' => 'Are you sure you want to delete this item?',

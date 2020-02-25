@@ -4,7 +4,8 @@
 namespace app\controllers;
 
 use app\forms\CardForm;
-use app\models\ImageUpload;
+use app\forms\UploadForm;
+use app\models\Upload;
 use Yii;
 use app\models\Card;
 use app\models\Deck;
@@ -50,13 +51,17 @@ class CardController extends Controller
 
     public function actionCreate($deck_id = null)
     {
-        $imgModel = new ImageUpload;
+        $uploadForm = new UploadForm();
         $cardForm = new CardForm();
-        if ($cardForm->load(Yii::$app->request->post()) && $cardForm->validate()) {
+        if ($cardForm->load(Yii::$app->request->post()) && $cardForm->validate() && $uploadForm->validate()) {
             $cardModel = new Card(\Yii::$app->request->getBodyParam('CardForm'));
+            if(!Deck::findAll($cardModel->getDeckId())){
+                throw new NotFoundHttpException('Deck not found');
+            }
             $cardModel->setStudyTime(new Expression('NOW()'));
-            $file = UploadedFile::getInstance($imgModel, 'image');
-            $cardModel->saveImage($imgModel->uploadFile($file, $cardModel->image));
+            $file = UploadedFile::getInstance($uploadForm, 'image');
+            $uploadModel = new Upload(\Yii::$app->request->getBodyParam('uploadForm'));
+            $cardModel->saveImage($uploadModel->uploadFile($file, $cardModel->image));
             try {
                 if ($cardModel->save()) {
                     Yii::$app->session->setFlash('success', 'Card successfully added');
@@ -67,8 +72,7 @@ class CardController extends Controller
             }
         }
         $deckList = Deck::findAll(['user_id' => Yii::$app->user->id]);
-        $cardForm->deck_id = $deck_id;
-        return $this->render('create', ['imgModel' => $imgModel, 'model' => $cardForm, 'deckList' => $deckList]);
+        return $this->render('create', ['uploadModel' => $uploadForm, 'model' => $cardForm, 'deckList' => $deckList]);
     }
 
     public function actionUpdate($id)
@@ -79,19 +83,22 @@ class CardController extends Controller
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
         }
-
-        if ($cardModel->load(Yii::$app->request->post()) && $cardModel->save()) {
-            return $this->redirect(['deck/view', 'id' => $cardModel->deck_id]);
+        $uploadForm = new UploadForm();
+        if ($cardModel->load(Yii::$app->request->post()) && $uploadForm->validate()) {
+            $file = UploadedFile::getInstance($uploadForm, 'image');
+            $uploadModel = new Upload(\Yii::$app->request->getBodyParam('uploadForm'));
+            $cardModel->saveImage($uploadModel->uploadFile($file, $cardModel->image));
+            $cardModel->save();
+            return $this->redirect(['deck/view', 'deckId' => $cardModel->getDeckId()]);
         }
 
-        return $this->render('update', ['model' => $cardModel, 'deckList' => $deckList]);
+        return $this->render('update', ['model' => $cardModel, 'deckList' => $deckList,'uploadModel' => $uploadForm]);
     }
 
     public function actionDelete($id)
     {
         try {
             $cardModel = Card::findModel($id);
-            $deckId = $cardModel->deck_id;
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException();
         }
@@ -99,7 +106,7 @@ class CardController extends Controller
 
             if ($cardModel->delete()) {
                 Yii::$app->session->setFlash('success', 'Card successfully deleted');
-                return $this->redirect(['deck/view', 'id' => $deckId]);
+                return $this->redirect(['deck/view', 'deckId' => $cardModel->getDeckId()]);
             }
         } catch (NotFoundHttpException $e) {
             throw new NotFoundHttpException('Failed to remove deck.');

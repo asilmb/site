@@ -43,14 +43,23 @@ class Mail extends ActiveRecord
         return ['mail'];
     }
 
-    public function sendEmail()
+    public function sendEmailForRegistration()
     {
-        $user = User::findOne(['mail' => $this->mail,]);
+        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl([YII::$app->params['signUp'], 'hash' => $this->getHash()]);
+        return Yii::$app->mailer->compose(['html' => 'user-signup-comfirm-html'], ['confirmLink' => $confirmLink])
+            ->setTo($this->getMail())
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->name . ' robot'])
+            ->setSubject('Confirmation of registration')
+            ->send();
+    }
 
+    public function sendPasswordRecoveryEmail()
+    {
+        $user = User::findOne(['mail' => $this->getMail(),]);
         if (!$user) {
             return false;
         }
-        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl([YII::$app->params['resetPassword'], 'hash' => $this->hash]);
+        $confirmLink = Yii::$app->urlManager->createAbsoluteUrl([YII::$app->params['resetPassword'], 'hash' => $this->getHash()]);
         return Yii::$app
             ->mailer
             ->compose(
@@ -61,7 +70,7 @@ class Mail extends ActiveRecord
                 ]
             )
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->name . ' robot'])
-            ->setTo($this->mail)
+            ->setTo($this->getMail())
             ->setSubject('Password reset for ' . Yii::$app->name)
             ->send();
     }
