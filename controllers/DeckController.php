@@ -145,7 +145,7 @@ class DeckController extends Controller
             return $this->render('study', ['model' => Card::findCard($deckId, $card_id)]);
         } catch (LastCardException $e) {
             Yii::$app->session->setFlash('success', 'Today all the words are learned.');
-            return $this->redirect('index');
+            return $this->redirect('deck');
         } catch (NotFoundHttpException $e) {
             Yii::$app->session->setFlash('Error', 'No cards into deck');
             return $this->redirect('deck');
