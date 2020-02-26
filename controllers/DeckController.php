@@ -123,18 +123,45 @@ class DeckController extends Controller
                     throw new HttpException(500, $e->getMessage());
                 }
             }
-            return $this->renderPartial('study', ['model' => $this->getNewCard($deckId,$card_id)]);
+            try {
+                return $this->renderPartial('study', ['model' => $this->getNewCard($deckId, $card_id)]);
+            } catch (NotFoundHttpException $e) {
+                Yii::$app->session->setFlash('success', 'Today all the words are learned.');
+                throw new NotFoundHttpException('There are no cards in the deck.');
+            }
         }
 
-        return $this->render('study', ['model' => $this->getNewCard($deckId,$card_id)]);
+        try {
+            return $this->render('study', ['model' => $this->getNewCard($deckId, $card_id)]);
+        } catch (NotFoundHttpException $e) {
+            Yii::$app->session->setFlash('success', 'Today all the words are learned.');
+            return $this->redirect('index');
+        }
     }
 
-    private function getNewCard($deckId,$card_id): Card
+//    private function getNewCard($deckId,$card_id)
+//    {
+//        try {
+//            return Card::findCard($deckId,$card_id);
+//        } catch (NotFoundHttpException $e) {
+//            throw new NotFoundHttpException('There are no 2 in the deck.');
+//        }
+//    }
+    private function getNewCard($deckId,$card_id)
     {
+        $arrayCard = Card::findCard($deckId);
+        $count = count($arrayCard);
+        $card = $arrayCard[rand(0,$count-1)];
+        if($count === 1){
+            return $card;
+        }
+        if($card['id'] == $card_id){
+            return self::getNewCard($deckId,$card_id);
+        }
         try {
-            return Card::findCard($deckId,$card_id);
+            return $card;
         } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException('There are no cards in the deck.');
+            throw new NotFoundHttpException('There are no 2 in the deck.');
         }
     }
 

@@ -28,15 +28,6 @@ $this->params['breadcrumbs'][] = $this->title;
         }
          ?>
 
-        <?= Html::a('Update', ['update', 'deckId' => $model->getId()], ['class' => 'btn btn-primary']) ?>
-
-        <?= Html::a('Delete', ['delete', 'deckId' => $model->getId()], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
     </p>
 
 

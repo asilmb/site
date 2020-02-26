@@ -8,8 +8,10 @@ $this->params['breadcrumbs'][] = ['label' => 'Decks', 'url' => ['deck/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div>
+    <div class="text-center">
+         <?= Html::img($model->getImage(),['width'=>200]);?>
+    </div>
 
-    <?= Html::img($model->getImage(),['width'=>200]);?>
 
 
 

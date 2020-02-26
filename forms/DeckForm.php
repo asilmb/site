@@ -10,7 +10,7 @@ namespace app\forms;
  *
  * @property int $id
  * @property string $name
- * @property int $deck_id
+ * @property int $user_id
  */
 
 use app\models\Deck;
