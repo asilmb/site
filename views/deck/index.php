@@ -13,7 +13,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <p>
         <?= Html::a('Create a Deck', ['create'], ['class' => 'btn btn-success']) ?>
 
-        <?= Html::a('Create a Card', ['card/create'], ['class' => 'btn btn-success']) ?>
     </p>
     <h4>
         <?= 'The number of your decks: ' . $decksNumber ?>

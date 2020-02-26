@@ -15,9 +15,11 @@ namespace app\models;
 
 use DateInterval;
 use DateTime;
+
 use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 
 class Card extends ActiveRecord
@@ -56,25 +58,41 @@ class Card extends ActiveRecord
         throw new NotFoundHttpException();
     }
 
-    public static function findCard($deck_id,$previous_id = null)
+//    public static function findCard($deck_id,$previous_id = null)
+//    {
+//        $date = new DateTime();
+//        $date = $date->format('Y-m-d');
+//        $card = Card::find()
+//            ->where(['deck_id' => $deck_id])
+//            ->andWhere(['<=', 'study_time', $date])
+//            ->orderBy(new Expression('random()'))
+//            ->one();
+//        if (!$card) {
+//            throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
+//        }
+//        if($card->id == $previous_id){
+//            return self::findCard($deck_id,$previous_id);
+//        }
+//
+//        return $card;
+//    }
+    public static function findCard($deck_id)
     {
         $date = new DateTime();
         $date = $date->format('Y-m-d');
         $card = Card::find()
             ->where(['deck_id' => $deck_id])
             ->andWhere(['<=', 'study_time', $date])
-            ->orderBy(new Expression('random()'))
-            ->one();
+            ->all();
         if (!$card) {
             throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
         }
-        if($card->id == $previous_id){
-            return self::findCard($deck_id,$previous_id);
-        }
+//        if($card->id == $previous_id){
+//            return self::findCard($deck_id,$previous_id);
+//        }
 
         return $card;
     }
-
     public static function nextDay()
     {
         $date = new DateTime();
