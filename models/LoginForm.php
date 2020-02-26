@@ -37,7 +37,7 @@ class LoginForm extends Model
     {
         $user = User::findByUsername($this->username);
         if (!$user || !$user->validatePassword($this->password)) {
-            $this->addError('password', 'Неправильное имя пользователя или пароль.');
+            $this->addError('password', 'Invalid username or password.');
         }
     }
 

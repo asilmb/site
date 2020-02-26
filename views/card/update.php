@@ -8,16 +8,17 @@ $this->params['breadcrumbs'][] = ['label' => 'Decks', 'url' => ['deck/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div>
-    <?php $form = ActiveForm::begin() ?>
+    <div class="text-center">
+         <?= Html::img($model->getImage(),['width'=>200]);?>
+    </div>
 
-    <?= $form->field($model, 'deck_id')->dropdownList(\yii\helpers\ArrayHelper::map($deckList, 'id', 'name')); ?>
 
-    <?= $form->field($model, 'front') ?>
 
-    <?= $form->field($model, 'back') ?>
 
-    <?= Html::submitButton('Create', ['class' => 'btn btn-success']) ?>
-
-    <?php $form = ActiveForm::end() ?>
+    <?= $this->render('_form', [
+        'model' => $model,
+        'deckList' => $deckList,
+        'uploadModel' => $uploadModel,
+    ]) ?>
 
 </div>

@@ -18,6 +18,18 @@ use yii\web\NotFoundHttpException;
 class Deck extends ActiveRecord
 {
 
+    public static function tableName()
+    {
+        return '{{deck}}';
+    }
+
+    public function rules()
+    {
+        return [
+            [['id', 'name', 'user_id'], 'safe'],
+        ];
+    }
+
     public function setUserId($id)
     {
         $this->user_id = $id;
@@ -33,21 +45,14 @@ class Deck extends ActiveRecord
         return $this->id;
     }
 
-    public function rules()
-    {
-        return [
-            ['name', 'unique', 'targetClass' => Deck::className(), 'message' => 'This name is already in use.'],
-            [['name',], 'required', 'message' => 'Fill in the field'],
-            [['name'], 'string', 'max' => 50],
-        ];
+    public function setDeckName($deckName){
+        $this->name = $deckName;
     }
 
-    public function attributeLabels()
-    {
-        return [
-            'name' => 'Name',
-        ];
+    public function getDeckName(){
+        return $this->name;
     }
+
 
     public static function findModel($id)
     {

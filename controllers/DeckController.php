@@ -4,10 +4,13 @@
 namespace app\controllers;
 
 
+use app\exceptions\LastCardException;
+use app\forms\DeckForm;
 use app\models\Card;
 use Yii;
 use app\models\Deck;
 use yii\data\ActiveDataProvider;
+use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\HttpException;
@@ -37,6 +40,15 @@ class DeckController extends Controller
         ];
     }
 
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
+
     public function actionIndex()
     {
 
@@ -47,8 +59,9 @@ class DeckController extends Controller
 
     public function actionCreate()
     {
-        $deckModel = new Deck();
-        if ($deckModel->load(\Yii::$app->request->post()) && $deckModel->validate()) {
+        $deckForm = new DeckForm();
+        if ($deckForm->load(\Yii::$app->request->post()) && $deckForm->validate()) {
+            $deckModel = new Deck(\Yii::$app->request->getBodyParam('DeckForm'));
             $deckModel->setUserId(Yii::$app->user->id);
             try {
                 if ($deckModel->save()) {
@@ -59,13 +72,13 @@ class DeckController extends Controller
                 throw new HttpException(500, $e->getMessage());
             }
         }
-        return $this->render('create', ['model' => $deckModel]);
+        return $this->render('create', ['model' => $deckForm]);
     }
 
-    public function actionView($id)
+    public function actionView($deckId)
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Card::find()->where(['deck_id' => $id]),
+            'query' => Card::find()->where(['deck_id' => $deckId]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -73,34 +86,34 @@ class DeckController extends Controller
 
         try {
             return $this->render('view', [
-                'model' => Deck::findModel($id),
+                'model' => Deck::findModel($deckId),
                 'dataProvider' => $dataProvider,
                 'isEmpty' => $dataProvider->getCount() > 0 ? false : true,
             ]);
         } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException('Deck not found');
         }
     }
 
-    public function actionUpdate($id)
+    public function actionUpdate($deckId)
     {
         try {
-            $model = Deck::findModel($id);
+            $deckModel = Deck::findModel($deckId);
         } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException('Deck not found');
         }
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($deckModel->load(Yii::$app->request->post()) && $deckModel->save()) {
+            return $this->redirect(['view', 'deckId' => $deckModel->getId()]);
         }
 
-        return $this->render('update', ['model' => $model,]);
+        return $this->render('update', ['model' => $deckModel,]);
     }
 
-    public function actionDelete($id)
+    public function actionDelete($deckId)
     {
         try {
-            if (Deck::findModel($id)->delete()) {
+            if (Deck::findModel($deckId)->delete()) {
                 return $this->redirect(['index']);
             }
         } catch (NotFoundHttpException $e) {
@@ -108,7 +121,7 @@ class DeckController extends Controller
         }
     }
 
-    public function actionStudy($id, $card_id = null, $success = null)
+    public function actionStudy($deckId, $card_id = null, $success = null)
     {
         if (\Yii::$app->request->isAjax) {
             if ($success) {
@@ -120,27 +133,23 @@ class DeckController extends Controller
                     throw new HttpException(500, $e->getMessage());
                 }
             }
-            return $this->renderPartial('study', ['model' => $this->getNewCard($id)]);
+            try {
+                return $this->renderPartial('study', ['model' => Card::findCard($deckId, $card_id)]);
+            } catch (NotFoundHttpException $e) {
+                Yii::$app->session->setFlash('success', 'Today all the words are learned.');
+                throw new NotFoundHttpException('There are no cards in the deck.');
+            }
         }
 
-        return $this->render('study', ['model' => $this->getNewCard($id)]);
-    }
-
-    private function getNewCard($id): Card
-    {
         try {
-            return Card::findCard($id);
+            return $this->render('study', ['model' => Card::findCard($deckId, $card_id)]);
+        } catch (LastCardException $e) {
+            Yii::$app->session->setFlash('success', 'Today all the words are learned.');
+            return $this->redirect('deck');
         } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
+            Yii::$app->session->setFlash('Error', 'No cards into deck');
+            return $this->redirect('deck');
         }
     }
 
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-        ];
-    }
 }

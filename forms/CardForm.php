@@ -6,7 +6,7 @@ namespace app\forms;
 /**
  * Class CardForm
  *
- * This is the form class "deck".
+ * This is the form class "card".
  *
  * @property int $id
  * @property int $deck_id
@@ -15,9 +15,11 @@ namespace app\forms;
  * @property dateTime $study_time
  */
 
-
+use app\models\Card;
+use app\models\Deck;
 use DateTime;
 use yii\base\Model;
+use yii\db\Query;
 
 
 class CardForm extends Model
@@ -31,11 +33,11 @@ class CardForm extends Model
 
     public function rules()
     {
+
         return [
             [['front', 'back', 'deck_id',], 'required', 'message' => 'Fill in the field'],
             [['front', 'back'], 'string', 'max' => 50],
             ['study_time', 'date', 'format' => 'php:Y-m-d'],
-            [['deck_id', 'back',], 'safe'],
             [['image'], 'file', 'extensions' => 'jpg,png','maxSize' => 1024*1024],
         ];
     }
