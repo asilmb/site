@@ -13,6 +13,7 @@ namespace app\models;
  * @property date $study_time
  */
 
+use app\exceptions\LastCardException;
 use DateInterval;
 use DateTime;
 
@@ -58,41 +59,26 @@ class Card extends ActiveRecord
         throw new NotFoundHttpException();
     }
 
-//    public static function findCard($deck_id,$previous_id = null)
-//    {
-//        $date = new DateTime();
-//        $date = $date->format('Y-m-d');
-//        $card = Card::find()
-//            ->where(['deck_id' => $deck_id])
-//            ->andWhere(['<=', 'study_time', $date])
-//            ->orderBy(new Expression('random()'))
-//            ->one();
-//        if (!$card) {
-//            throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
-//        }
-//        if($card->id == $previous_id){
-//            return self::findCard($deck_id,$previous_id);
-//        }
-//
-//        return $card;
-//    }
-    public static function findCard($deck_id)
+    public static function findCard($deck_id, $previous_id = null)
     {
         $date = new DateTime();
         $date = $date->format('Y-m-d');
         $card = Card::find()
             ->where(['deck_id' => $deck_id])
             ->andWhere(['<=', 'study_time', $date])
-            ->all();
-        if (!$card) {
-            throw new NotFoundHttpException('There are no cards in the deck or for today all words are learned.');
+            ->orderBy(new Expression('random()'));
+        if($card->count() < 1){
+            throw new LastCardException();
         }
-//        if($card->id == $previous_id){
-//            return self::findCard($deck_id,$previous_id);
-//        }
+        $card = $card->one();
+
+        if ($card->id == $previous_id) {
+            return self::findCard($deck_id, $previous_id);
+        }
 
         return $card;
     }
+
     public static function nextDay()
     {
         $date = new DateTime();

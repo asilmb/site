@@ -4,6 +4,7 @@
 namespace app\controllers;
 
 
+use app\exceptions\LastCardException;
 use app\forms\DeckForm;
 use app\models\Card;
 use Yii;
@@ -35,6 +36,15 @@ class DeckController extends Controller
                         'roles' => ['@'],
                     ]
                 ]
+            ],
+        ];
+    }
+
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
             ],
         ];
     }
@@ -124,7 +134,7 @@ class DeckController extends Controller
                 }
             }
             try {
-                return $this->renderPartial('study', ['model' => $this->getNewCard($deckId, $card_id)]);
+                return $this->renderPartial('study', ['model' => Card::findCard($deckId, $card_id)]);
             } catch (NotFoundHttpException $e) {
                 Yii::$app->session->setFlash('success', 'Today all the words are learned.');
                 throw new NotFoundHttpException('There are no cards in the deck.');
@@ -132,45 +142,14 @@ class DeckController extends Controller
         }
 
         try {
-            return $this->render('study', ['model' => $this->getNewCard($deckId, $card_id)]);
-        } catch (NotFoundHttpException $e) {
+            return $this->render('study', ['model' => Card::findCard($deckId, $card_id)]);
+        } catch (LastCardException $e) {
             Yii::$app->session->setFlash('success', 'Today all the words are learned.');
             return $this->redirect('index');
-        }
-    }
-
-//    private function getNewCard($deckId,$card_id)
-//    {
-//        try {
-//            return Card::findCard($deckId,$card_id);
-//        } catch (NotFoundHttpException $e) {
-//            throw new NotFoundHttpException('There are no 2 in the deck.');
-//        }
-//    }
-    private function getNewCard($deckId,$card_id)
-    {
-        $arrayCard = Card::findCard($deckId);
-        $count = count($arrayCard);
-        $card = $arrayCard[rand(0,$count-1)];
-        if($count === 1){
-            return $card;
-        }
-        if($card['id'] == $card_id){
-            return self::getNewCard($deckId,$card_id);
-        }
-        try {
-            return $card;
         } catch (NotFoundHttpException $e) {
-            throw new NotFoundHttpException('There are no 2 in the deck.');
+            Yii::$app->session->setFlash('Error', 'No cards into deck');
+            return $this->redirect('deck');
         }
     }
 
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-        ];
-    }
 }
