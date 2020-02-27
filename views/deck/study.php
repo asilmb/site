@@ -14,14 +14,14 @@ $this->registerJsFile(
 <div id='study' class="container" style="text-align: center">
     <?php Pjax::begin(); ?>
 
-    <h2><?= $model['front']; ?></h2>
+    <h2><?= $model->getFront(); ?></h2>
     <hr>
 
     <?= Html::img($model->getImage(),['width'=>400]); ?>
 
     <hr>
     <h2 class="invisible">
-        <?= $model['back']; ?>
+        <?= $model->getBack(); ?>
     </h2>
 
 

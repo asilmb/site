@@ -11,6 +11,7 @@ use yii\grid\GridView;
             ['class' => 'yii\grid\SerialColumn'],
             'front',
             'back',
+            'study_time',
             [
                 'class' => 'yii\grid\ActionColumn',
                 'controller' => 'card',
