@@ -17,10 +17,9 @@ use app\exceptions\LastCardException;
 use DateInterval;
 use DateTime;
 
-use Yii;
+
 use yii\db\ActiveRecord;
 use yii\db\Expression;
-use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 
 class Card extends ActiveRecord
@@ -70,9 +69,13 @@ class Card extends ActiveRecord
         if($card->count() < 1){
             throw new LastCardException();
         }
+        if($card->count() < 2){
+            $card = $card->one();
+            return $card;
+        }
         $card = $card->one();
-
         if ($card->id == $previous_id) {
+
             return self::findCard($deck_id, $previous_id);
         }
 
