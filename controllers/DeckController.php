@@ -3,10 +3,14 @@
 
 namespace app\controllers;
 
-
+//namespace moonland\PHPExcel;
 use app\exceptions\LastCardException;
+use app\forms\CardForm;
 use app\forms\DeckForm;
+use app\forms\ImportForm;
 use app\models\Card;
+use app\models\Import;
+use app\models\Upload;
 use Yii;
 use app\models\Deck;
 use yii\data\ActiveDataProvider;
@@ -16,9 +20,16 @@ use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
+use PHPExcel;
+use PHPExcel\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 
 class DeckController extends Controller
 {
+
     public function behaviors()
     {
         return [
@@ -152,4 +163,29 @@ class DeckController extends Controller
         }
     }
 
+    public function actionImport($deckId){
+
+        $importForm = new ImportForm();
+        if ($importForm->load(Yii::$app->request->post()) && $importForm->validate()){
+            $file = UploadedFile::getInstance($importForm, 'file');
+            $importModel = new Import(\Yii::$app->request->getBodyParam('importForm'));
+            $fileName = $importModel->getFolder().$importModel->save($file);
+            $data = \moonland\phpexcel\Excel::import($fileName);
+            foreach ($data as $value){
+                $cardForm = new CardForm();
+                $cardForm->deck_id = $deckId;
+                $cardForm->front = $value['front'];
+                $cardForm->back = $value['back'];
+                if($cardForm->validate()){
+                    $cardModel = new Card($cardForm->getAttributes(['deck_id','front','back']));
+                    $cardModel->save();
+                }
+            }
+            Yii::$app->session->setFlash('success', 'File successfully import');
+            $importModel->deleteFile($fileName);
+            return $this->redirect(['view', 'deckId' => $deckId]);
+
+        }
+        return $this->render('import',['model'=> $importForm]);
+    }
 }

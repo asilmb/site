@@ -26,10 +26,14 @@ $this->params['breadcrumbs'][] = $this->title;
         } else {
             echo Html::a('Create', ['card/create', 'deckId' => $model->getId()], ['class' => 'btn btn-primary']);
         }
+        echo Html::a('Import card', ['deck/import', 'deckId' => $model->getId()], ['class' => 'btn btn-primary','style'=> 'margin: 0px 10px;']);
          ?>
 
     </p>
-
+    <p>
+        Choose the number of words to learn
+        <?= Html::dropDownList('wordCount',4,[5,10,20,50,100]) ?>;
+    </p>
 
     <?= $this->render('/card/_cardList', [
         'dataProvider' => $dataProvider,
