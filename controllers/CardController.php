@@ -62,7 +62,6 @@ class CardController extends Controller
             if(!Deck::findAll($cardModel->getDeckId()) ){
                 throw new NotFoundHttpException('Deck not found');
             }
-            $cardModel->setStudyTime(new Expression('NOW()'));
             $file = UploadedFile::getInstance($uploadForm, 'image');
             $uploadModel = new Upload(\Yii::$app->request->getBodyParam('uploadForm'));
             $cardModel->saveImage($uploadModel->uploadFile($file, $cardModel->image));
