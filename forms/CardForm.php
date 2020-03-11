@@ -12,7 +12,10 @@ namespace app\forms;
  * @property int $deck_id
  * @property string $front
  * @property string $back
- * @property dateTime $study_time
+ * @property string $image
+ * @property integer $view_count
+ * @property integer $success_count
+ * @property boolean $hidden
  */
 
 use app\models\Card;
@@ -28,8 +31,10 @@ class CardForm extends Model
     public $deck_id;
     public $front;
     public $back;
-    public $study_time;
     public $image;
+    public $view_count;
+    public $success_count;
+    public $hidden;
 
     public function rules()
     {
@@ -37,7 +42,6 @@ class CardForm extends Model
         return [
             [['front', 'back', 'deck_id',], 'required', 'message' => 'Fill in the field'],
             [['front', 'back'], 'string', 'max' => 50],
-            ['study_time', 'date', 'format' => 'php:Y-m-d'],
             [['image'], 'file', 'extensions' => 'jpg,png','maxSize' => 1024*1024],
         ];
     }

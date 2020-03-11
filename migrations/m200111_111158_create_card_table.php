@@ -17,8 +17,10 @@ class m200111_111158_create_card_table extends Migration
             'deck_id' => $this->integer()->notNull(),
             'front' => $this->string()->notNull(),
             'back' => $this->string()->notNull(),
-            'study_time' => $this->date(),
             'image' => $this->string(),
+            'view_count'=>$this->integer()->defaultValue(0),
+            'success_count' => $this->integer()->defaultValue(0),
+            'hidden' => $this->boolean()->defaultValue(false),
         ]);
 
         $this->createIndex(

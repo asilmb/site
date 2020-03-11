@@ -10,7 +10,10 @@ namespace app\models;
  * @property int $deck_id
  * @property string $front
  * @property string $back
- * @property date $study_time
+ * @property string $image
+ * @property integer $view_count
+ * @property integer $success_count
+ * @property boolean $hidden
  */
 
 use app\exceptions\LastCardException;
@@ -58,37 +61,19 @@ class Card extends ActiveRecord
         throw new NotFoundHttpException();
     }
 
-    public static function findCard($deck_id, $previous_id = null)
+
+    public static function findCard($deck_id, $limit)
     {
-        $date = new DateTime();
-        $date = $date->format('Y-m-d');
-        $card = Card::find()
+        $cardList = Card::find()
             ->where(['deck_id' => $deck_id])
-            ->andWhere(['<=', 'study_time', $date])
-            ->orderBy(new Expression('random()'));
-        if($card->count() < 1){
-            throw new LastCardException();
-        }
-        if($card->count() < 2){
-            $card = $card->one();
-            return $card;
-        }
-        $card = $card->one();
-        if ($card->id == $previous_id) {
+            ->andWhere(['hidden' => false])
+            ->orderBy('success_count')
+            ->limit($limit)
+            ->all();
 
-            return self::findCard($deck_id, $previous_id);
-        }
-
-        return $card;
+        return $cardList;
     }
 
-    public static function nextDay()
-    {
-        $date = new DateTime();
-        $date->add(new DateInterval('P1D'));
-        $date = $date->format('Y-m-d');
-        return $date;
-    }
 
     public function setDeckId($deck_id)
     {
@@ -151,19 +136,38 @@ class Card extends ActiveRecord
         return $this->deck_id;
     }
 
-    public function setStudyTime($studyTime)
+    public function setViewCount($viewCount)
     {
-        $this->study_time = $studyTime;
+        $this->view_count = $viewCount;
     }
 
     /**
      * @return mixed
      */
-    public function getStudyTime()
+    public function getViewCount()
     {
-        return $this->study_time;
+        return $this->view_count;
     }
 
+    public function setSuccesCount($successCount)
+    {
+        $this->success_count = $successCount;
+    }
+
+    public function getSuccessCount()
+    {
+        return $this->success_count;
+    }
+
+    public function setHiddenTrue()
+    {
+        $this->hidden = true;
+    }
+
+    public function setHiddenFalse()
+    {
+        $this->hidden = false;
+    }
     public function saveImage($filename)
     {
         $this->image = $filename;
